@@ -6,9 +6,21 @@ import sys
 
 from .analysis import analyze_impact
 from .diffing import compare_graphs
+from .gating import evaluate_gate
 from .io import load_graph
 from .model import GraphValidationError
 from .render import render_dot, render_text
+
+
+def _add_selector(parser: argparse.ArgumentParser) -> None:
+    selector = parser.add_mutually_exclusive_group(required=True)
+    selector.add_argument("--change", help="Change id declared in the graph document.")
+    selector.add_argument(
+        "--seed",
+        action="append",
+        dest="seeds",
+        help="Seed node id. Repeat for multiple seeds.",
+    )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -26,14 +38,7 @@ def _parser() -> argparse.ArgumentParser:
         help="Traverse propagation edges from a change or explicit seed nodes.",
     )
     impact.add_argument("graph")
-    selector = impact.add_mutually_exclusive_group(required=True)
-    selector.add_argument("--change", help="Change id declared in the graph document.")
-    selector.add_argument(
-        "--seed",
-        action="append",
-        dest="seeds",
-        help="Seed node id. Repeat for multiple seeds.",
-    )
+    _add_selector(impact)
     impact.add_argument(
         "--max-depth",
         type=int,
@@ -50,6 +55,41 @@ def _parser() -> argparse.ArgumentParser:
         "--explain",
         action="store_true",
         help="Include a shortest deterministic explanation path for every affected node.",
+    )
+
+    gate = subparsers.add_parser(
+        "gate",
+        help="Evaluate deterministic CI policy checks against an impact set.",
+    )
+    gate.add_argument("graph")
+    _add_selector(gate)
+    gate.add_argument("--max-depth", type=int, default=None)
+    gate.add_argument("--max-affected", type=int, default=None)
+    gate.add_argument("--min-tests", type=int, default=0)
+    gate.add_argument("--min-owners", type=int, default=0)
+    gate.add_argument(
+        "--fail-on-criticality",
+        choices=("low", "medium", "high", "critical"),
+        default=None,
+        help="Fail if any impacted node is at or above this criticality.",
+    )
+    gate.add_argument(
+        "--forbid-node",
+        action="append",
+        default=[],
+        help="Fail if this node id is impacted. Repeatable.",
+    )
+    gate.add_argument(
+        "--forbid-type",
+        action="append",
+        default=[],
+        help="Fail if this node type is impacted. Repeatable.",
+    )
+    gate.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="Output format.",
     )
 
     dot = subparsers.add_parser(
@@ -133,6 +173,37 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(render_text(result, explain=args.explain))
             return 0
+
+        if args.command == "gate":
+            impact = analyze_impact(
+                graph,
+                change_id=args.change,
+                seeds=args.seeds,
+                max_depth=args.max_depth,
+            )
+            gate = evaluate_gate(
+                impact,
+                max_affected_nodes=args.max_affected,
+                min_tests=args.min_tests,
+                min_owners=args.min_owners,
+                fail_on_criticality=args.fail_on_criticality,
+                forbid_node_ids=args.forbid_node,
+                forbid_node_types=args.forbid_type,
+            )
+            if args.format == "json":
+                print(json.dumps(gate.to_dict(), indent=2, sort_keys=True))
+            elif gate.passed:
+                print(
+                    f"PASS: affected={len(impact.impacted)}, "
+                    f"tests={len(impact.regression_tests)}, "
+                    f"owners={len(impact.owners)}, "
+                    f"max-criticality={impact.max_criticality or 'none'}"
+                )
+            else:
+                print(f"FAIL: {len(gate.violations)} gate violation(s)")
+                for violation in gate.violations:
+                    print(f"- {violation}")
+            return 0 if gate.passed else 3
 
         if args.command == "dot":
             highlighted: set[str] = set()

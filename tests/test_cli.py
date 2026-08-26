@@ -43,3 +43,39 @@ edges:
     output = capsys.readouterr().out
     assert "Graph diff" in output
     assert "Impact seeds in after graph: a, b" in output
+
+
+def test_gate_cli_returns_ci_friendly_exit_codes(capsys):
+    assert (
+        main(
+            [
+                "gate",
+                str(EXAMPLE),
+                "--change",
+                "CR-142",
+                "--max-affected",
+                "20",
+                "--min-tests",
+                "2",
+                "--min-owners",
+                "2",
+            ]
+        )
+        == 0
+    )
+    assert "PASS:" in capsys.readouterr().out
+
+    assert (
+        main(
+            [
+                "gate",
+                str(EXAMPLE),
+                "--change",
+                "CR-142",
+                "--max-affected",
+                "5",
+            ]
+        )
+        == 3
+    )
+    assert "FAIL:" in capsys.readouterr().out

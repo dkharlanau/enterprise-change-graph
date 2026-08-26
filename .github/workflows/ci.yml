@@ -31,3 +31,5 @@ jobs:
         run: ecg impact examples/customer-country-change.yaml --change CR-142 --format json > /tmp/impact.json
       - name: Run graph diff example
         run: ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json > /tmp/diff.json
+      - name: Run governance gate example
+        run: ecg gate examples/customer-country-change.yaml --change CR-142 --max-affected 20 --min-tests 2 --min-owners 2

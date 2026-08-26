@@ -31,6 +31,7 @@ Enterprise Change Graph makes the dependency model executable.
 - multi-seed breadth-first impact traversal
 - cycle-safe deterministic shortest explanation paths
 - graph-version diff with impact seed candidates
+- deterministic CI governance gates
 - criticality summary without opaque scoring
 - automatic regression-test scope
 - automatic owner scope
@@ -100,6 +101,25 @@ Use JSON when another tool or agent will consume the result:
 ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json
 ```
 
+## Turn impact into a CI gate
+
+`ecg gate` converts the same deterministic impact set into a CI-friendly pass/fail
+result. For example, require a bounded blast radius plus explicit test and owner
+coverage:
+
+```bash
+ecg gate examples/customer-country-change.yaml \
+  --change CR-142 \
+  --max-affected 20 \
+  --min-tests 2 \
+  --min-owners 2
+```
+
+You can also fail on a criticality threshold or forbid specific nodes/types. A
+policy failure exits with code `3`; invalid input exits with code `2`.
+
+See [CI and governance gates](docs/ci.md).
+
 ## Minimal model
 
 ```yaml
@@ -145,9 +165,9 @@ See [the graph model](docs/model.md) and [use cases](docs/use-cases.md).
 
 ## Project direction
 
-The next layers are removal-aware diff impact, graph composition across
-repositories, change-policy gates, richer evidence links, generated impact
-reports, and connectors to adjacent “as code” projects.
+The next layers are removal-aware diff impact, policy files and reusable policy
+packs, graph composition across repositories, richer evidence links, generated
+impact reports, and connectors to adjacent “as code” projects.
 
 See [ROADMAP.md](ROADMAP.md).
 
@@ -165,4 +185,4 @@ See [ROADMAP.md](ROADMAP.md).
 
 ## Status
 
-**Working core / early alpha (`0.2.0`).** The graph format may evolve before `1.0`.
+**Working core / early alpha (`0.3.0`).** The graph format may evolve before `1.0`.

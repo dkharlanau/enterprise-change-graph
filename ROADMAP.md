@@ -13,11 +13,12 @@
 - [x] CLI, tests, and CI
 - [x] compare graph versions and identify structural change
 - [x] derive impact seed candidates from graph diffs
+- [x] basic deterministic CI governance gates
 
 ## Next — change intelligence
 
 - [ ] removal-aware impact analysis for deleted nodes and relationships
-- [ ] policy gates for critical impacted artifacts
+- [ ] reusable YAML policy files and policy packs
 - [ ] include evidence links and approval requirements
 - [ ] configurable traversal filters by relation and node type
 - [ ] reusable graph fragments and cross-file composition

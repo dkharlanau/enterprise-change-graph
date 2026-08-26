@@ -15,7 +15,7 @@ status: early-alpha
 implementation:
   repository_created: true
   implementation_status: working-core
-  version: 0.2.0
+  version: 0.3.0
   codex_fit: 5/5
   sap_access_required: false
   cli: true
@@ -23,6 +23,7 @@ implementation:
   ci: true
   schema: true
   graph_diff: true
+  governance_gate: true
 
 principles:
   - versionable
@@ -46,4 +47,5 @@ outputs:
   - text-impact-summary
   - json-impact-result
   - graph-diff
+  - ci-gate-result
   - graphviz-dot

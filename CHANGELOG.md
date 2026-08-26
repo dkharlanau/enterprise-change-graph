@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- add deterministic CI governance gates over impact results
+- support blast-radius, regression-test, owner, criticality, forbidden-node, and forbidden-type checks
+- return distinct CI exit codes for policy failures and invalid input
+- add JSON gate output, tests, documentation, and CI smoke coverage
+
 ## 0.2.0
 
 - add deterministic graph-to-graph diff
