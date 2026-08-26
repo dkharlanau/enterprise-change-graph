@@ -38,12 +38,22 @@ jobs:
           ecg review examples/diff-before.yaml examples/diff-after.yaml --format markdown --output /tmp/review.md
       - name: Governance policy
         run: ecg gate examples/customer-country-change.yaml --change CR-142 --policy policies/baseline.yaml
-      - name: Artifact adapters
+      - name: As-code artifact adapters
         run: |
           ecg import-process examples/adapters/process-minimal.yaml --output /tmp/process.yaml
           ecg validate /tmp/process.yaml
           ecg import-reconciliation examples/adapters/reconciliation.yaml --output /tmp/reconciliation.yaml
           ecg validate /tmp/reconciliation.yaml
+      - name: API contract adapters
+        run: |
+          ecg import-openapi examples/adapters/openapi.yaml --output /tmp/openapi.yaml
+          ecg validate /tmp/openapi.yaml
+          ecg import-asyncapi examples/adapters/asyncapi.yaml --output /tmp/asyncapi.yaml
+          ecg validate /tmp/asyncapi.yaml
+      - name: Test evidence
+        run: |
+          ecg junit examples/adapters/junit.xml --format json > /tmp/junit.json
+          ecg junit-history examples/adapters/junit.xml --change CR-142 --affected-node mapping.customer-country --output /tmp/junit-history.json
       - name: Interoperability exports
         run: |
           ecg export examples/customer-country-change.yaml --format graphml --output /tmp/graph.graphml
@@ -57,5 +67,7 @@ jobs:
           ecg validate examples/sap-customer-master/golden-graph.yaml
           ecg report examples/sap-customer-master/golden-graph.yaml --change SAP-CR-001 --output /tmp/sap-impact.md
           ecg release examples/sap-customer-master/golden-graph.yaml --change SAP-CR-001 --change SAP-CR-002 --format json > /tmp/release.json
+      - name: Performance smoke
+        run: ecg benchmark --nodes 2000 --fanout 2 --repeats 1 --format json > /tmp/benchmark.json
       - name: Agent context
         run: ecg context examples/customer-country-change.yaml --change CR-142 > /tmp/context.json

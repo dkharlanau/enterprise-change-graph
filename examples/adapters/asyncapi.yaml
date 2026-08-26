@@ -1,0 +1,26 @@
+asyncapi: 3.1.0
+info:
+  title: Customer Events
+  version: 1.0.0
+servers:
+  production:
+    host: kafka.example.test:9092
+    protocol: kafka
+channels:
+  customerChanged:
+    address: customer.changed
+    messages:
+      customerChanged:
+        $ref: '#/components/messages/CustomerChanged'
+operations:
+  sendCustomerChanged:
+    action: send
+    channel:
+      $ref: '#/channels/customerChanged'
+components:
+  messages:
+    CustomerChanged:
+      payload:
+        type: object
+        properties:
+          customerId: {type: string}

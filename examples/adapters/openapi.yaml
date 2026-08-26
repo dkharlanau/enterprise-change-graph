@@ -1,0 +1,36 @@
+openapi: 3.2.0
+info:
+  title: Customer API
+  version: 1.0.0
+servers:
+  - {url: https://api.example.test, description: Customer API endpoint}
+paths:
+  /customers:
+    post:
+      operationId: createCustomer
+      summary: Create customer
+      tags: [customer]
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CustomerCreate'}
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Customer'}
+  /customers/{id}:
+    get:
+      operationId: getCustomer
+      summary: Get customer
+      responses:
+        '200':
+          description: Customer
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Customer'}
+components:
+  schemas:
+    CustomerCreate: {type: object}
+    Customer: {type: object}

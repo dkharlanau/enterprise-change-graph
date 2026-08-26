@@ -1,12 +1,22 @@
 # Changelog
 
+## 0.11.0 — 2026-08-26
+
+- Add OpenAPI 3.x contract import with operation and request/response contract nodes.
+- Add AsyncAPI 2.x/3.x contract import with channels, operations, brokers, and message contracts.
+- Add JUnit XML ingestion and conversion to historical ECG evidence records.
+- Replace per-node edge scans with a deterministic adjacency index for linear graph traversal.
+- Replace copied path tuples with parent-linked explanation traces to reduce traversal memory pressure.
+- Add synthetic benchmark generation, measurement, and optional caller-defined performance budgets.
+- Add API contract, test evidence, and performance documentation and CI smoke coverage.
+
 ## 0.10.0 — 2026-08-26
 
 - Add deterministic `why-not` explanations for excluded targets.
 - Add first-party Process-as-Code v0.2 and Reconciliation-as-Code adapters based on their current repository formats.
 - Add GraphML and Cypher export.
 - Add a dependency-free static HTML graph explorer with optional change highlighting.
-- Extend CI with interoperability smoke tests.
+- Add persistent GitHub pull-request comment mode to the composite action.
 
 ## 0.9.0 — 2026-08-26
 
