@@ -15,12 +15,14 @@ status: early-alpha
 implementation:
   repository_created: true
   implementation_status: working-core
+  version: 0.2.0
   codex_fit: 5/5
   sap_access_required: false
   cli: true
   tests: true
   ci: true
   schema: true
+  graph_diff: true
 
 principles:
   - versionable
@@ -43,4 +45,5 @@ primary_users:
 outputs:
   - text-impact-summary
   - json-impact-result
+  - graph-diff
   - graphviz-dot

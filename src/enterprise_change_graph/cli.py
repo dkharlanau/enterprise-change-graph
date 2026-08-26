@@ -5,6 +5,7 @@ import json
 import sys
 
 from .analysis import analyze_impact
+from .diffing import compare_graphs
 from .io import load_graph
 from .model import GraphValidationError
 from .render import render_dot, render_text
@@ -58,6 +59,19 @@ def _parser() -> argparse.ArgumentParser:
     dot.add_argument("graph")
     dot.add_argument("--change", help="Change id to highlight.")
 
+    diff = subparsers.add_parser(
+        "diff",
+        help="Compare two graph documents and derive impact seed candidates.",
+    )
+    diff.add_argument("before")
+    diff.add_argument("after")
+    diff.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="Output format.",
+    )
+
     return parser
 
 
@@ -65,6 +79,39 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
 
     try:
+        if args.command == "diff":
+            before = load_graph(args.before)
+            after = load_graph(args.after)
+            diff = compare_graphs(before, after)
+            if args.format == "json":
+                print(json.dumps(diff.to_dict(), indent=2, sort_keys=True))
+            else:
+                summary = diff.to_dict()["summary"]
+                print("Graph diff")
+                print(
+                    "Nodes: "
+                    f"added={summary['added_nodes']}, "
+                    f"removed={summary['removed_nodes']}, "
+                    f"modified={summary['modified_nodes']}"
+                )
+                print(
+                    "Edges: "
+                    f"added={summary['added_edges']}, "
+                    f"removed={summary['removed_edges']}, "
+                    f"modified={summary['modified_edges']}"
+                )
+                print(
+                    "Changes: "
+                    f"added={summary['added_changes']}, "
+                    f"removed={summary['removed_changes']}, "
+                    f"modified={summary['modified_changes']}"
+                )
+                seeds = ", ".join(diff.impact_seeds_after) or "none"
+                removed = ", ".join(diff.removed_seed_candidates) or "none"
+                print(f"Impact seeds in after graph: {seeds}")
+                print(f"Removed-node seed candidates: {removed}")
+            return 0
+
         graph = load_graph(args.graph)
 
         if args.command == "validate":

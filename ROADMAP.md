@@ -11,11 +11,12 @@
 - [x] machine-readable JSON output
 - [x] Graphviz DOT export
 - [x] CLI, tests, and CI
+- [x] compare graph versions and identify structural change
+- [x] derive impact seed candidates from graph diffs
 
 ## Next — change intelligence
 
-- [ ] compare two graph versions and identify structural change
-- [ ] derive seed nodes from a graph diff
+- [ ] removal-aware impact analysis for deleted nodes and relationships
 - [ ] policy gates for critical impacted artifacts
 - [ ] include evidence links and approval requirements
 - [ ] configurable traversal filters by relation and node type

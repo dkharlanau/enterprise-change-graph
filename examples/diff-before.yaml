@@ -1,0 +1,17 @@
+version: 1
+
+nodes:
+  - id: mapping.customer-country
+    type: mapping
+    name: Customer country conversion
+    criticality: high
+
+  - id: interface.customer-replication
+    type: interface
+    name: Customer replication
+    criticality: high
+
+edges:
+  - source: mapping.customer-country
+    target: interface.customer-replication
+    relation: replicated-by

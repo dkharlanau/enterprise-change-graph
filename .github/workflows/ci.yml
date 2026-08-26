@@ -29,3 +29,5 @@ jobs:
         run: ecg validate examples/customer-country-change.yaml
       - name: Run impact example
         run: ecg impact examples/customer-country-change.yaml --change CR-142 --format json > /tmp/impact.json
+      - name: Run graph diff example
+        run: ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json > /tmp/diff.json

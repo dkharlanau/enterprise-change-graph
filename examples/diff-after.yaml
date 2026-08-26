@@ -1,0 +1,26 @@
+version: 1
+
+nodes:
+  - id: mapping.customer-country
+    type: mapping
+    name: Customer country conversion
+    criticality: critical
+
+  - id: interface.customer-replication
+    type: interface
+    name: Customer replication
+    criticality: high
+
+  - id: control.tax-determination
+    type: control
+    name: Customer tax determination
+    criticality: critical
+
+edges:
+  - source: mapping.customer-country
+    target: interface.customer-replication
+    relation: replicated-by
+
+  - source: interface.customer-replication
+    target: control.tax-determination
+    relation: affects

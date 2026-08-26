@@ -30,6 +30,7 @@ Enterprise Change Graph makes the dependency model executable.
 - explicit impact propagation direction per relationship
 - multi-seed breadth-first impact traversal
 - cycle-safe deterministic shortest explanation paths
+- graph-version diff with impact seed candidates
 - criticality summary without opaque scoring
 - automatic regression-test scope
 - automatic owner scope
@@ -78,6 +79,27 @@ ecg dot examples/customer-country-change.yaml --change CR-142 > impact.dot
 dot -Tsvg impact.dot > impact.svg
 ```
 
+## Detect change between graph versions
+
+The graph itself can be versioned in Git. `ecg diff` compares two valid graph
+snapshots and reports added, removed, and modified nodes, edges, and declared
+changes.
+
+```bash
+ecg diff examples/diff-before.yaml examples/diff-after.yaml
+```
+
+The output also derives conservative `impact_seeds_after` candidates from changed
+nodes and changed edge endpoints. Those seed IDs can feed the normal impact
+traversal in CI or a pull-request workflow. Removed nodes are reported separately
+because they no longer exist in the after graph and need removal-impact handling.
+
+Use JSON when another tool or agent will consume the result:
+
+```bash
+ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json
+```
+
 ## Minimal model
 
 ```yaml
@@ -123,9 +145,9 @@ See [the graph model](docs/model.md) and [use cases](docs/use-cases.md).
 
 ## Project direction
 
-The next layers are graph composition across repositories, change-policy gates,
-diff-aware analysis, richer evidence links, generated impact reports, and
-connectors to adjacent “as code” projects.
+The next layers are removal-aware diff impact, graph composition across
+repositories, change-policy gates, richer evidence links, generated impact
+reports, and connectors to adjacent “as code” projects.
 
 See [ROADMAP.md](ROADMAP.md).
 
@@ -143,4 +165,4 @@ See [ROADMAP.md](ROADMAP.md).
 
 ## Status
 
-**Working core / early alpha.** The graph format may evolve before `1.0`.
+**Working core / early alpha (`0.2.0`).** The graph format may evolve before `1.0`.
