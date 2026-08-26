@@ -1,0 +1,8 @@
+policy:
+  max_affected_nodes: 40
+  min_tests: 2
+  min_owners: 1
+  max_untested_nodes: 0
+  max_unowned_nodes: 0
+  require_complete_traversal: true
+  require_change_kind: true

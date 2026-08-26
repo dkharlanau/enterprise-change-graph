@@ -1,0 +1,11 @@
+records:
+  - change_id: CR-101
+    affected_nodes: [mapping.customer-country, data.customer.country, interface.mdg-to-s4-customer, system.sap-s4, test.customer-replication]
+    failed_tests: [test.customer-replication]
+    incidents: []
+    outcome: successful-with-fix
+  - change_id: CR-088
+    affected_nodes: [data.customer.country, interface.mdg-to-s4-customer, system.sap-s4, process.order-to-cash]
+    failed_tests: [test.otc-tax]
+    incidents: [INC-4812]
+    outcome: production-incident

@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.12", "3.13"]
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,9 +26,20 @@ jobs:
         run: pytest
       - name: Validate example
         run: ecg validate examples/customer-country-change.yaml
-      - name: Run impact example
-        run: ecg impact examples/customer-country-change.yaml --change CR-142 --format json > /tmp/impact.json
-      - name: Run graph diff example
-        run: ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json > /tmp/diff.json
-      - name: Run governance gate example
-        run: ecg gate examples/customer-country-change.yaml --change CR-142 --max-affected 20 --min-tests 2 --min-owners 2
+      - name: Impact and report
+        run: |
+          ecg impact examples/customer-country-change.yaml --change CR-142 --format json > /tmp/impact.json
+          ecg report examples/customer-country-change.yaml --change CR-142 --output /tmp/impact.md
+      - name: Diff and removal-aware review
+        run: |
+          ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json > /tmp/diff.json
+          ecg review examples/diff-before.yaml examples/diff-after.yaml --format markdown --output /tmp/review.md
+      - name: Governance policy
+        run: ecg gate examples/customer-country-change.yaml --change CR-142 --policy policies/baseline.yaml
+      - name: Golden SAP graph
+        run: |
+          ecg validate examples/sap-customer-master/golden-graph.yaml
+          ecg report examples/sap-customer-master/golden-graph.yaml --change SAP-CR-001 --output /tmp/sap-impact.md
+          ecg release examples/sap-customer-master/golden-graph.yaml --change SAP-CR-001 --change SAP-CR-002 --format json > /tmp/release.json
+      - name: Agent context
+        run: ecg context examples/customer-country-change.yaml --change CR-142 > /tmp/context.json

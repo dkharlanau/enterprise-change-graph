@@ -63,23 +63,22 @@ class GraphDiff:
         candidates = (
             {node.id for node in self.added_nodes}
             | {node.id for node in self.modified_nodes}
-            | {
-                endpoint
-                for edge in self.added_edges
-                for endpoint in (edge.source, edge.target)
-            }
-            | {
-                endpoint
-                for edge in self.removed_edges
-                for endpoint in (edge.source, edge.target)
-            }
-            | {
-                endpoint
-                for edge in self.modified_edges
-                for endpoint in (edge.before.source, edge.before.target)
-            }
+            | {endpoint for edge in self.added_edges for endpoint in (edge.source, edge.target)}
+            | {endpoint for edge in self.removed_edges for endpoint in (edge.source, edge.target)}
+            | {endpoint for edge in self.modified_edges for endpoint in (edge.before.source, edge.before.target)}
         )
         return tuple(sorted(candidates - removed_ids))
+
+    @property
+    def impact_seeds_before(self) -> tuple[str, ...]:
+        added_ids = {node.id for node in self.added_nodes}
+        candidates = (
+            {node.id for node in self.removed_nodes}
+            | {node.id for node in self.modified_nodes}
+            | {endpoint for edge in self.removed_edges for endpoint in (edge.source, edge.target)}
+            | {endpoint for edge in self.modified_edges for endpoint in (edge.before.source, edge.before.target)}
+        )
+        return tuple(sorted(candidates - added_ids))
 
     @property
     def removed_seed_candidates(self) -> tuple[str, ...]:
@@ -87,19 +86,9 @@ class GraphDiff:
 
     @property
     def is_empty(self) -> bool:
-        return not any(
-            (
-                self.added_nodes,
-                self.removed_nodes,
-                self.modified_nodes,
-                self.added_edges,
-                self.removed_edges,
-                self.modified_edges,
-                self.added_changes,
-                self.removed_changes,
-                self.modified_changes,
-            )
-        )
+        return not any((self.added_nodes, self.removed_nodes, self.modified_nodes, self.added_edges,
+                        self.removed_edges, self.modified_edges, self.added_changes,
+                        self.removed_changes, self.modified_changes))
 
     def to_dict(self) -> dict:
         return {
@@ -114,6 +103,7 @@ class GraphDiff:
                 "removed_changes": len(self.removed_changes),
                 "modified_changes": len(self.modified_changes),
                 "impact_seeds_after": list(self.impact_seeds_after),
+                "impact_seeds_before": list(self.impact_seeds_before),
                 "removed_seed_candidates": list(self.removed_seed_candidates),
             },
             "nodes": {
@@ -137,63 +127,32 @@ class GraphDiff:
 def compare_graphs(before: EnterpriseGraph, after: EnterpriseGraph) -> GraphDiff:
     before_node_ids = set(before.nodes)
     after_node_ids = set(after.nodes)
-
-    added_nodes = tuple(
-        after.nodes[node_id] for node_id in sorted(after_node_ids - before_node_ids)
-    )
-    removed_nodes = tuple(
-        before.nodes[node_id] for node_id in sorted(before_node_ids - after_node_ids)
-    )
-    modified_nodes = tuple(
-        ModifiedNode(node_id, before.nodes[node_id], after.nodes[node_id])
-        for node_id in sorted(before_node_ids & after_node_ids)
-        if before.nodes[node_id] != after.nodes[node_id]
-    )
+    added_nodes = tuple(after.nodes[node_id] for node_id in sorted(after_node_ids - before_node_ids))
+    removed_nodes = tuple(before.nodes[node_id] for node_id in sorted(before_node_ids - after_node_ids))
+    modified_nodes = tuple(ModifiedNode(node_id, before.nodes[node_id], after.nodes[node_id])
+                           for node_id in sorted(before_node_ids & after_node_ids)
+                           if before.nodes[node_id] != after.nodes[node_id])
 
     before_edges = {_edge_key(edge): edge for edge in before.edges}
     after_edges = {_edge_key(edge): edge for edge in after.edges}
     before_edge_keys = set(before_edges)
     after_edge_keys = set(after_edges)
-
-    added_edges = tuple(
-        after_edges[key] for key in sorted(after_edge_keys - before_edge_keys)
-    )
-    removed_edges = tuple(
-        before_edges[key] for key in sorted(before_edge_keys - after_edge_keys)
-    )
-    modified_edges = tuple(
-        ModifiedEdge(key, before_edges[key], after_edges[key])
-        for key in sorted(before_edge_keys & after_edge_keys)
-        if before_edges[key] != after_edges[key]
-    )
+    added_edges = tuple(after_edges[key] for key in sorted(after_edge_keys - before_edge_keys))
+    removed_edges = tuple(before_edges[key] for key in sorted(before_edge_keys - after_edge_keys))
+    modified_edges = tuple(ModifiedEdge(key, before_edges[key], after_edges[key])
+                           for key in sorted(before_edge_keys & after_edge_keys)
+                           if before_edges[key] != after_edges[key])
 
     before_change_ids = set(before.changes)
     after_change_ids = set(after.changes)
-    added_changes = tuple(
-        after.changes[change_id]
-        for change_id in sorted(after_change_ids - before_change_ids)
-    )
-    removed_changes = tuple(
-        before.changes[change_id]
-        for change_id in sorted(before_change_ids - after_change_ids)
-    )
-    modified_changes = tuple(
-        ModifiedChange(change_id, before.changes[change_id], after.changes[change_id])
-        for change_id in sorted(before_change_ids & after_change_ids)
-        if before.changes[change_id] != after.changes[change_id]
-    )
+    added_changes = tuple(after.changes[change_id] for change_id in sorted(after_change_ids - before_change_ids))
+    removed_changes = tuple(before.changes[change_id] for change_id in sorted(before_change_ids - after_change_ids))
+    modified_changes = tuple(ModifiedChange(change_id, before.changes[change_id], after.changes[change_id])
+                             for change_id in sorted(before_change_ids & after_change_ids)
+                             if before.changes[change_id] != after.changes[change_id])
 
-    return GraphDiff(
-        added_nodes=added_nodes,
-        removed_nodes=removed_nodes,
-        modified_nodes=modified_nodes,
-        added_edges=added_edges,
-        removed_edges=removed_edges,
-        modified_edges=modified_edges,
-        added_changes=added_changes,
-        removed_changes=removed_changes,
-        modified_changes=modified_changes,
-    )
+    return GraphDiff(added_nodes, removed_nodes, modified_nodes, added_edges, removed_edges,
+                     modified_edges, added_changes, removed_changes, modified_changes)
 
 
 def _edge_key(edge: Edge) -> tuple[str, str, str]:

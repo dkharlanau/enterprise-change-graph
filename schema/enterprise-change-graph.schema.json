@@ -4,123 +4,14 @@
   "title": "Enterprise Change Graph",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "version",
-    "nodes",
-    "edges"
-  ],
+  "required": ["version", "nodes", "edges"],
   "properties": {
-    "version": {
-      "const": 1
-    },
-    "nodes": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "type"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "type": {
-            "type": "string",
-            "minLength": 1
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "criticality": {
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "critical"
-            ]
-          },
-          "metadata": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "edges": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "source",
-          "target",
-          "relation"
-        ],
-        "properties": {
-          "source": {
-            "type": "string",
-            "minLength": 1
-          },
-          "target": {
-            "type": "string",
-            "minLength": 1
-          },
-          "relation": {
-            "type": "string",
-            "minLength": 1
-          },
-          "propagation": {
-            "enum": [
-              "forward",
-              "reverse",
-              "both",
-              "none"
-            ]
-          },
-          "metadata": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "changes": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "title",
-          "seeds"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "title": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": {
-            "type": "string"
-          },
-          "seeds": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "metadata": {
-            "type": "object"
-          }
-        }
-      }
-    }
-  }
+    "version": {"const": 1},
+    "metadata": {"type": "object"},
+    "nodes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "type"], "properties": {"id": {"type": "string", "minLength": 1}, "type": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "criticality": {"enum": ["low", "medium", "high", "critical"]}, "metadata": {"type": "object"}, "provenance": {"$ref": "#/$defs/provenance"}}}},
+    "edges": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["source", "target", "relation"], "properties": {"source": {"type": "string", "minLength": 1}, "target": {"type": "string", "minLength": 1}, "relation": {"type": "string", "minLength": 1}, "propagation": {"enum": ["forward", "reverse", "both", "none"]}, "metadata": {"type": "object"}, "provenance": {"$ref": "#/$defs/provenance"}}}},
+    "changes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "title", "seeds"], "properties": {"id": {"type": "string", "minLength": 1}, "title": {"type": "string", "minLength": 1}, "description": {"type": "string"}, "kind": {"type": "string", "minLength": 1}, "seeds": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}, "metadata": {"type": "object"}, "provenance": {"$ref": "#/$defs/provenance"}}}},
+    "relation_rules": {"type": "object", "additionalProperties": {"oneOf": [{"enum": ["forward", "reverse", "both", "none"]}, {"type": "object", "additionalProperties": false, "properties": {"default": {"enum": ["forward", "reverse", "both", "none"]}, "change_kinds": {"type": "object", "additionalProperties": {"enum": ["forward", "reverse", "both", "none"]}}}}]}}
+  },
+  "$defs": {"provenance": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}]}}
 }

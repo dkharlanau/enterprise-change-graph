@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Enterprise Change Graph governance policy",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "policy": {"$ref": "#/$defs/policy"},
+    "max_affected_nodes": {"type": ["integer", "null"], "minimum": 0},
+    "min_tests": {"type": "integer", "minimum": 0},
+    "min_owners": {"type": "integer", "minimum": 0},
+    "fail_on_criticality": {"enum": ["low", "medium", "high", "critical", null]},
+    "forbid_node_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "forbid_node_types": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "max_untested_nodes": {"type": ["integer", "null"], "minimum": 0},
+    "max_unowned_nodes": {"type": ["integer", "null"], "minimum": 0},
+    "require_complete_traversal": {"type": "boolean"},
+    "require_change_kind": {"type": "boolean"}
+  },
+  "$defs": {"policy": {"type": "object", "additionalProperties": false, "properties": {
+    "max_affected_nodes": {"type": ["integer", "null"], "minimum": 0}, "min_tests": {"type": "integer", "minimum": 0}, "min_owners": {"type": "integer", "minimum": 0}, "fail_on_criticality": {"enum": ["low", "medium", "high", "critical", null]}, "forbid_node_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}, "forbid_node_types": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}, "max_untested_nodes": {"type": ["integer", "null"], "minimum": 0}, "max_unowned_nodes": {"type": ["integer", "null"], "minimum": 0}, "require_complete_traversal": {"type": "boolean"}, "require_change_kind": {"type": "boolean"}
+  }}}
+}

@@ -1,0 +1,7 @@
+policy:
+  max_affected_nodes: 100
+  min_tests: 1
+  min_owners: 1
+  max_untested_nodes: 25
+  max_unowned_nodes: 25
+  require_change_kind: true

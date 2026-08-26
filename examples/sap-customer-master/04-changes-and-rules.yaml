@@ -1,0 +1,14 @@
+version: 1
+nodes: []
+edges: []
+changes:
+- {id: SAP-CR-001, title: Change customer country conversion, kind: mapping-change, seeds: [mapping.customer-country]}
+- {id: SAP-CR-002, title: Change tax classification replication, kind: schema-change, seeds: [data.customer.tax]}
+- {id: SAP-CR-003, title: Decommission legacy CRM migration feed, kind: decommission, seeds: [interface.crm-mdg]}
+relation_rules:
+  published-by: {default: forward, change_kinds: {decommission: both, schema-change: forward}}
+  provides: {default: both}
+  depends-on: {default: forward, change_kinds: {decommission: both}}
+  owned-by: {default: forward}
+  verified-by: {default: forward}
+  transforms: {default: forward, change_kinds: {mapping-change: forward, decommission: both}}
