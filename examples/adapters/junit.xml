@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="customer-regression" tests="3" failures="1" skipped="1" time="0.420">
+  <testcase classname="CustomerReplication" name="replicates_country" time="0.120">
+    <properties><property name="ecg.test_id" value="test.customer-replication"/></properties>
+  </testcase>
+  <testcase classname="OrderToCash" name="tax_determination" time="0.250">
+    <properties><property name="ecg.test_id" value="test.otc-tax"/></properties>
+    <failure message="expected tax classification"/>
+  </testcase>
+  <testcase classname="CustomerUI" name="optional_banner" time="0.050"><skipped/></testcase>
+</testsuite>

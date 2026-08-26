@@ -4,9 +4,29 @@ from collections import Counter, deque
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from .model import Change, Edge, EnterpriseGraph
+from .model import Change, EnterpriseGraph
 
 CRITICALITY_ORDER = {"low": 1, "medium": 2, "high": 3, "critical": 4}
+
+
+@dataclass(frozen=True)
+class _Trace:
+    node_id: str
+    parent: "_Trace | None" = None
+    relation: str | None = None
+
+    def materialize(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        nodes: list[str] = []
+        relations: list[str] = []
+        current: _Trace | None = self
+        while current is not None:
+            nodes.append(current.node_id)
+            if current.relation is not None:
+                relations.append(current.relation)
+            current = current.parent
+        nodes.reverse()
+        relations.reverse()
+        return tuple(nodes), tuple(relations)
 
 
 @dataclass(frozen=True)
@@ -16,18 +36,26 @@ class ImpactedNode:
     name: str
     criticality: str
     depth: int
-    path: tuple[str, ...]
-    relations: tuple[str, ...]
+    _trace: _Trace = field(repr=False, compare=False)
+
+    @property
+    def path(self) -> tuple[str, ...]:
+        return self._trace.materialize()[0]
+
+    @property
+    def relations(self) -> tuple[str, ...]:
+        return self._trace.materialize()[1]
 
     def to_dict(self) -> dict:
+        path, relations = self._trace.materialize()
         return {
             "id": self.id,
             "type": self.type,
             "name": self.name,
             "criticality": self.criticality,
             "depth": self.depth,
-            "path": list(self.path),
-            "relations": list(self.relations),
+            "path": list(path),
+            "relations": list(relations),
         }
 
 
@@ -93,11 +121,7 @@ class ImpactResult:
         }
 
 
-def _relation_allowed(
-    relation: str,
-    include_relations: set[str],
-    exclude_relations: set[str],
-) -> bool:
+def _relation_allowed(relation: str, include_relations: set[str], exclude_relations: set[str]) -> bool:
     if relation in exclude_relations:
         return False
     if include_relations and relation not in include_relations:
@@ -113,31 +137,37 @@ def _node_allowed(node_type: str, include_types: set[str], exclude_types: set[st
     return True
 
 
-def _neighbors(
+def _build_adjacency(
     graph: EnterpriseGraph,
-    node_id: str,
     *,
     change_kind: str | None,
     include_relations: set[str],
     exclude_relations: set[str],
-) -> tuple[list[tuple[str, str]], bool]:
-    neighbors: list[tuple[str, str]] = []
-    filtered = False
+) -> tuple[dict[str, tuple[tuple[str, str], ...]], set[str]]:
+    """Build one deterministic O(E) traversal index for the analysis."""
+    allowed: dict[str, set[tuple[str, str]]] = {node_id: set() for node_id in graph.nodes}
+    blocked_relation_sources: set[str] = set()
     for edge in graph.edges:
         direction = graph.effective_propagation(edge, change_kind)
-        candidates: list[str] = []
-        if direction in {"forward", "both"} and edge.source == node_id:
-            candidates.append(edge.target)
-        if direction in {"reverse", "both"} and edge.target == node_id:
-            candidates.append(edge.source)
+        candidates: list[tuple[str, str]] = []
+        if direction in {"forward", "both"}:
+            candidates.append((edge.source, edge.target))
+        if direction in {"reverse", "both"}:
+            candidates.append((edge.target, edge.source))
         if not candidates:
             continue
         if not _relation_allowed(edge.relation, include_relations, exclude_relations):
-            filtered = True
+            blocked_relation_sources.update(source for source, _ in candidates)
             continue
-        for target in candidates:
-            neighbors.append((target, edge.relation))
-    return sorted(set(neighbors), key=lambda item: (item[0], item[1])), filtered
+        for source, target in candidates:
+            allowed[source].add((target, edge.relation))
+    return (
+        {
+            node_id: tuple(sorted(neighbors, key=lambda item: (item[0], item[1])))
+            for node_id, neighbors in allowed.items()
+        },
+        blocked_relation_sources,
+    )
 
 
 def analyze_impact(
@@ -181,26 +211,29 @@ def analyze_impact(
     if overlap_types:
         raise ValueError(f"node types cannot be both included and excluded: {', '.join(sorted(overlap_types))}")
 
+    adjacency, blocked_relation_sources = _build_adjacency(
+        graph,
+        change_kind=effective_kind,
+        include_relations=inc_rel,
+        exclude_relations=exc_rel,
+    )
+
     queue = deque()
-    visited: dict[str, tuple[int, tuple[str, ...], tuple[str, ...]]] = {}
+    visited: dict[str, tuple[int, _Trace]] = {}
     seed_set = set(selected_seeds)
     for seed in sorted(seed_set):
-        visited[seed] = (0, (seed,), ())
+        trace = _Trace(seed)
+        visited[seed] = (0, trace)
         queue.append(seed)
 
     truncated = False
     filtered = False
     while queue:
         current = queue.popleft()
-        depth, path, relations = visited[current]
-        next_nodes, relation_filtered = _neighbors(
-            graph,
-            current,
-            change_kind=effective_kind,
-            include_relations=inc_rel,
-            exclude_relations=exc_rel,
-        )
-        filtered = filtered or relation_filtered
+        depth, trace = visited[current]
+        if current in blocked_relation_sources:
+            filtered = True
+        next_nodes = adjacency[current]
         if max_depth is not None and depth >= max_depth:
             if any(neighbor not in visited for neighbor, _ in next_nodes):
                 truncated = True
@@ -214,13 +247,12 @@ def analyze_impact(
                 continue
             visited[neighbor] = (
                 depth + 1,
-                path + (neighbor,),
-                relations + (relation,),
+                _Trace(neighbor, parent=trace, relation=relation),
             )
             queue.append(neighbor)
 
     impacted: list[ImpactedNode] = []
-    for node_id, (depth, path, relations) in visited.items():
+    for node_id, (depth, trace) in visited.items():
         node = graph.nodes[node_id]
         impacted.append(
             ImpactedNode(
@@ -229,8 +261,7 @@ def analyze_impact(
                 name=node.name,
                 criticality=node.criticality,
                 depth=depth,
-                path=path,
-                relations=relations,
+                _trace=trace,
             )
         )
     impacted.sort(key=lambda node: (node.depth, node.type, node.id))

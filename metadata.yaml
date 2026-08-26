@@ -3,7 +3,7 @@ repository: enterprise-change-graph
 owner: dkharlanau
 visibility: public
 status: usable-alpha
-version: 0.9.0
+version: 0.11.0
 implementation:
   repository_created: true
   implementation_status: executable
@@ -11,13 +11,19 @@ implementation:
 capabilities:
   - deterministic impact analysis
   - before/after removal-aware review
+  - deterministic non-impact explanation
   - regression and owner coverage
   - governance as code
   - graph composition and provenance
   - csv and excel onboarding
-  - interface and mapping adapters
+  - as-code artifact adapters
+  - openapi and asyncapi contract adapters
+  - junit test evidence
   - release collision detection
   - historical evidence comparison
+  - graphml and cypher export
+  - static html explorer
+  - indexed performance-aware traversal
   - agent-ready context
 principles:
   - versionable

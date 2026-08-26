@@ -8,7 +8,9 @@ from pathlib import Path
 from .agent import build_agent_context
 from .analysis import analyze_impact
 from .artifact_adapters import import_process_as_code, import_reconciliation_as_code
+from .benchmark import run_benchmark
 from .composition import compose_graphs
+from .contract_adapters import import_asyncapi, import_openapi
 from .coverage import assess_coverage
 from .diffing import compare_graphs
 from .evidence import compare_prediction, find_similar_changes, load_history
@@ -18,6 +20,7 @@ from .exports import render_cypher, render_graphml
 from .gating import evaluate_gate
 from .importers import import_catalog_csv, import_catalog_workbook, import_interface_as_code, import_mapping_as_code
 from .io import dump_graph, load_graph
+from .junit import load_junit
 from .model import GraphValidationError
 from .policy import GatePolicy, load_policy
 from .quality import analyze_quality
@@ -101,10 +104,7 @@ def _add_gate_policy_args(parser: argparse.ArgumentParser) -> None:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="ecg",
-        description="Deterministic enterprise change impact analysis and governance.",
-    )
+    parser = argparse.ArgumentParser(prog="ecg", description="Deterministic enterprise change impact analysis and governance.")
     sub = parser.add_subparsers(dest="command", required=True)
 
     validate = sub.add_parser("validate", help="Validate a graph document.")
@@ -162,21 +162,17 @@ def _parser() -> argparse.ArgumentParser:
     xlsx_cmd.add_argument("workbook")
     xlsx_cmd.add_argument("--output", required=True)
 
-    interface_cmd = sub.add_parser("import-interface", help="Import an Interface-as-Code document.")
-    interface_cmd.add_argument("source")
-    interface_cmd.add_argument("--output", required=True)
-
-    mapping_cmd = sub.add_parser("import-mapping", help="Import a Mapping-as-Code document.")
-    mapping_cmd.add_argument("source")
-    mapping_cmd.add_argument("--output", required=True)
-
-    process_cmd = sub.add_parser("import-process", help="Import a Process-as-Code v0.2 document.")
-    process_cmd.add_argument("source")
-    process_cmd.add_argument("--output", required=True)
-
-    recon_cmd = sub.add_parser("import-reconciliation", help="Import a Reconciliation-as-Code document.")
-    recon_cmd.add_argument("source")
-    recon_cmd.add_argument("--output", required=True)
+    for name, help_text in (
+        ("import-interface", "Import an Interface-as-Code document."),
+        ("import-mapping", "Import a Mapping-as-Code document."),
+        ("import-process", "Import a Process-as-Code v0.2 document."),
+        ("import-reconciliation", "Import a Reconciliation-as-Code document."),
+        ("import-openapi", "Import an OpenAPI 3.x contract."),
+        ("import-asyncapi", "Import an AsyncAPI 2.x/3.x contract."),
+    ):
+        cmd = sub.add_parser(name, help=help_text)
+        cmd.add_argument("source")
+        cmd.add_argument("--output", required=True)
 
     quality = sub.add_parser("quality", help="Diagnose graph coverage and maintainability gaps.")
     quality.add_argument("graph")
@@ -224,10 +220,27 @@ def _parser() -> argparse.ArgumentParser:
     explore.add_argument("--change")
     explore.add_argument("--output", required=True)
 
+    junit = sub.add_parser("junit", help="Parse JUnit XML as deterministic test evidence.")
+    junit.add_argument("source")
+    junit.add_argument("--format", choices=("text", "json"), default="text")
+
+    junit_history = sub.add_parser("junit-history", help="Convert JUnit XML into an ECG history record.")
+    junit_history.add_argument("source")
+    junit_history.add_argument("--change", required=True)
+    junit_history.add_argument("--affected-node", action="append", default=[])
+    junit_history.add_argument("--output")
+
+    benchmark = sub.add_parser("benchmark", help="Benchmark deterministic traversal on a synthetic graph.")
+    benchmark.add_argument("--nodes", type=int, default=10000)
+    benchmark.add_argument("--fanout", type=int, default=2)
+    benchmark.add_argument("--repeats", type=int, default=3)
+    benchmark.add_argument("--max-median-ms", type=float, default=None)
+    benchmark.add_argument("--format", choices=("text", "json"), default="text")
+
     return parser
 
 
-def _handle_preload_commands(args) -> int | None:
+def _handle_preload(args) -> int | None:
     if args.command == "diff":
         before = load_graph(args.before)
         after = load_graph(args.after)
@@ -247,8 +260,7 @@ def _handle_preload_commands(args) -> int | None:
 
     if args.command == "review":
         review = analyze_diff_impact(
-            load_graph(args.before),
-            load_graph(args.after),
+            load_graph(args.before), load_graph(args.after),
             max_depth=args.max_depth,
             include_relations=args.include_relation,
             exclude_relations=args.exclude_relation,
@@ -290,19 +302,53 @@ def _handle_preload_commands(args) -> int | None:
         "import-mapping": lambda: import_mapping_as_code(args.source),
         "import-process": lambda: import_process_as_code(args.source),
         "import-reconciliation": lambda: import_reconciliation_as_code(args.source),
+        "import-openapi": lambda: import_openapi(args.source),
+        "import-asyncapi": lambda: import_asyncapi(args.source),
     }
     if args.command in importers:
         graph = importers[args.command]()
         dump_graph(graph, args.output)
         print(f"OK: adapter produced nodes={len(graph.nodes)}, edges={len(graph.edges)}, changes={len(graph.changes)} -> {args.output}")
         return 0
+
+    if args.command == "junit":
+        evidence = load_junit(args.source)
+        if args.format == "json":
+            print(json.dumps(evidence.to_dict(), indent=2, sort_keys=True))
+        else:
+            summary = evidence.to_dict()["summary"]
+            print(f"JUnit: tests={summary['tests']}, passed={summary['passed']}, failed={summary['failed']}, errors={summary['error']}, skipped={summary['skipped']}")
+            print("Failed test ids: " + (", ".join(summary["failed_test_ids"]) or "none"))
+        return 0
+
+    if args.command == "junit-history":
+        evidence = load_junit(args.source)
+        record = evidence.observed_change(args.change, args.affected_node)
+        text = json.dumps({"records": [record.to_dict()]}, indent=2, sort_keys=True) + "\n"
+        _write_or_print(text, args.output)
+        return 0
+
+    if args.command == "benchmark":
+        result = run_benchmark(args.nodes, fanout=args.fanout, repeats=args.repeats)
+        if args.format == "json":
+            print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+        else:
+            print(
+                f"Benchmark: nodes={result.nodes}, edges={result.edges}, affected={result.affected_nodes}, "
+                f"median={result.median_ms:.3f}ms, min={result.min_ms:.3f}ms, max={result.max_ms:.3f}ms"
+            )
+        if args.max_median_ms is not None and result.median_ms > args.max_median_ms:
+            print(f"PERFORMANCE BUDGET FAIL: median {result.median_ms:.3f}ms > {args.max_median_ms:.3f}ms", file=sys.stderr)
+            return 4
+        return 0
+
     return None
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        handled = _handle_preload_commands(args)
+        handled = _handle_preload(args)
         if handled is not None:
             return handled
 
