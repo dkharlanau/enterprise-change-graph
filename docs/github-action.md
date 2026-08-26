@@ -1,14 +1,22 @@
 # GitHub pull-request integration
 
-The root `action.yml` is a composite action that compares two graph files and appends a removal-aware impact report to GitHub Job Summary.
+The root `action.yml` compares two graph files, builds a removal-aware impact report, and appends it to GitHub Job Summary.
 
 ```yaml
+permissions:
+  contents: read
+  pull-requests: write
+
 steps:
   - uses: actions/checkout@v4
   - uses: dkharlanau/enterprise-change-graph@main
     with:
       before: path/to/before.yaml
       after: path/to/after.yaml
+      comment: 'true'
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The action needs read access only. Teams wanting a persistent PR comment can use `github_pr_comment()` with their own authenticated transport.
+With `comment: 'true'`, the action finds the existing `<!-- enterprise-change-graph -->` PR comment and updates it. This keeps one current change-review artifact instead of creating a new bot comment for every push.
+
+If comment mode is disabled, read access is sufficient. The generated report path is also available as the `report` output.

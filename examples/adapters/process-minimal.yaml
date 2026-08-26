@@ -1,0 +1,11 @@
+version: "0.2"
+process: {id: order-release, name: Order release, start: validate}
+steps:
+  - id: validate
+    name: Validate order
+    type: decision
+    transitions:
+      - {to: release, when: valid}
+      - {to: reject, when: invalid}
+  - {id: release, name: Release order, type: end}
+  - {id: reject, name: Reject order, type: end}

@@ -7,6 +7,17 @@ inputs:
   after:
     description: Path to the proposed graph document.
     required: true
+  comment:
+    description: Update a persistent pull-request comment with the review.
+    required: false
+    default: 'false'
+  github-token:
+    description: GitHub token used only when comment=true. Caller needs pull-requests: write.
+    required: false
+outputs:
+  report:
+    description: Path to the generated Markdown review.
+    value: ${{ steps.review.outputs.report }}
 runs:
   using: composite
   steps:
@@ -17,10 +28,38 @@ runs:
       shell: bash
       run: python -m pip install "$GITHUB_ACTION_PATH"
     - name: Build change review
+      id: review
       shell: bash
       env:
         ECG_BEFORE: ${{ inputs.before }}
         ECG_AFTER: ${{ inputs.after }}
       run: |
-        ecg review "$ECG_BEFORE" "$ECG_AFTER" --format markdown --output "$RUNNER_TEMP/ecg-review.md"
-        cat "$RUNNER_TEMP/ecg-review.md" >> "$GITHUB_STEP_SUMMARY"
+        REPORT="$RUNNER_TEMP/ecg-review.md"
+        ecg review "$ECG_BEFORE" "$ECG_AFTER" --format markdown --output "$REPORT"
+        cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+        echo "report=$REPORT" >> "$GITHUB_OUTPUT"
+    - name: Update pull-request comment
+      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      uses: actions/github-script@v7
+      env:
+        ECG_REPORT: ${{ steps.review.outputs.report }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const marker = '<!-- enterprise-change-graph -->';
+          const report = fs.readFileSync(process.env.ECG_REPORT, 'utf8').trim();
+          const body = `${marker}\n${report}`;
+          const { owner, repo } = context.repo;
+          const issue_number = context.issue.number;
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner, repo, issue_number, per_page: 100
+          });
+          const existing = comments.find(comment =>
+            comment.body && comment.body.includes(marker)
+          );
+          if (existing) {
+            await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+          } else {
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });
+          }
