@@ -1,0 +1,40 @@
+version: 1
+nodes:
+- {id: test.mdg-country, type: test, name: MDG country mapping regression, criticality: high}
+- {id: test.mdg-tax, type: test, name: MDG tax classification regression, criticality: critical}
+- {id: test.cpi-contract, type: test, name: CPI customer contract test, criticality: critical}
+- {id: test.s4-replication, type: test, name: S/4 replication regression, criticality: critical}
+- {id: test.otc-order, type: test, name: Order-to-cash customer regression, criticality: critical}
+- {id: test.tax-determination, type: test, name: Tax determination regression, criticality: critical}
+- {id: test.credit-check, type: test, name: Credit check regression, criticality: critical}
+- {id: test.commerce-customer, type: test, name: Commerce customer sync regression, criticality: high}
+- {id: test.dwh-customer, type: test, name: DWH customer feed regression, criticality: high}
+- {id: test.partner-functions, type: test, name: Partner function regression, criticality: high}
+- {id: test.address-quality, type: test, name: Address quality regression, criticality: high}
+- {id: test.customer-migration, type: test, name: Migration customer regression, criticality: high}
+- {id: owner.master-data, type: owner, name: Master Data team, criticality: low}
+- {id: owner.integration, type: owner, name: Integration team, criticality: low}
+- {id: owner.otc, type: owner, name: Order-to-Cash team, criticality: low}
+- {id: owner.tax, type: owner, name: Tax team, criticality: low}
+- {id: owner.credit, type: owner, name: Credit team, criticality: low}
+- {id: owner.analytics, type: owner, name: Analytics team, criticality: low}
+edges:
+- {source: mapping.customer-country, target: test.mdg-country, relation: verified-by}
+- {source: mapping.tax-classification, target: test.mdg-tax, relation: verified-by}
+- {source: interface.mdg-cpi, target: test.cpi-contract, relation: verified-by}
+- {source: interface.cpi-s4, target: test.s4-replication, relation: verified-by}
+- {source: process.order-to-cash, target: test.otc-order, relation: verified-by}
+- {source: process.tax-determination, target: test.tax-determination, relation: verified-by}
+- {source: process.credit-check, target: test.credit-check, relation: verified-by}
+- {source: interface.s4-commerce, target: test.commerce-customer, relation: verified-by}
+- {source: interface.s4-dwh, target: test.dwh-customer, relation: verified-by}
+- {source: mapping.partner-functions, target: test.partner-functions, relation: verified-by}
+- {source: control.address, target: test.address-quality, relation: verified-by}
+- {source: process.customer-migration, target: test.customer-migration, relation: verified-by}
+- {source: system.sap-mdg, target: owner.master-data, relation: owned-by}
+- {source: interface.mdg-cpi, target: owner.integration, relation: owned-by}
+- {source: interface.cpi-s4, target: owner.integration, relation: owned-by}
+- {source: process.order-to-cash, target: owner.otc, relation: owned-by}
+- {source: process.tax-determination, target: owner.tax, relation: owned-by}
+- {source: process.credit-check, target: owner.credit, relation: owned-by}
+- {source: process.analytics-customer, target: owner.analytics, relation: owned-by}

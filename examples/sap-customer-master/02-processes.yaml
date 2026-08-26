@@ -1,0 +1,31 @@
+version: 1
+nodes:
+- {id: process.customer-onboarding, type: process, name: Customer onboarding, criticality: critical}
+- {id: process.customer-change, type: process, name: Customer change, criticality: high}
+- {id: process.order-to-cash, type: process, name: Order to cash, criticality: critical}
+- {id: process.tax-determination, type: process, name: Tax determination, criticality: critical}
+- {id: process.credit-check, type: process, name: Credit check, criticality: critical}
+- {id: process.ecommerce-account, type: process, name: Commerce account enablement, criticality: high}
+- {id: process.analytics-customer, type: process, name: Customer analytics, criticality: medium}
+- {id: process.customer-migration, type: process, name: Customer migration, criticality: high}
+- {id: control.tax-number, type: control, name: Tax number consistency, criticality: critical}
+- {id: control.sales-area, type: control, name: Sales area completeness, criticality: critical}
+- {id: control.partner-function, type: control, name: Partner function completeness, criticality: high}
+- {id: control.credit, type: control, name: Credit profile completeness, criticality: critical}
+- {id: control.address, type: control, name: Postal address completeness, criticality: high}
+edges:
+- {source: system.sap-mdg, target: process.customer-onboarding, relation: supports}
+- {source: system.sap-mdg, target: process.customer-change, relation: supports}
+- {source: system.sap-s4, target: process.order-to-cash, relation: supports}
+- {source: system.tax-engine, target: process.tax-determination, relation: supports}
+- {source: data.customer.credit, target: process.credit-check, relation: used-by}
+- {source: system.commerce, target: process.ecommerce-account, relation: supports}
+- {source: system.sap-bw, target: process.analytics-customer, relation: supports}
+- {source: interface.crm-mdg, target: process.customer-migration, relation: supports}
+- {source: data.customer.tax, target: control.tax-number, relation: governed-by}
+- {source: data.customer.sales-area, target: control.sales-area, relation: governed-by}
+- {source: data.customer.partner-functions, target: control.partner-function, relation: governed-by}
+- {source: data.customer.credit, target: control.credit, relation: governed-by}
+- {source: data.customer.address, target: control.address, relation: governed-by}
+- {source: process.order-to-cash, target: process.tax-determination, relation: depends-on}
+- {source: process.order-to-cash, target: process.credit-check, relation: depends-on}

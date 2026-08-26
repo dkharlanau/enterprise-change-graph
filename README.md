@@ -1,188 +1,101 @@
 # Enterprise Change Graph
 
-**Deterministic impact analysis for enterprise changes.**
+**Deterministic change-impact analysis for enterprise systems.**
 
-Enterprise Change Graph turns processes, systems, data objects, interfaces,
-mappings, controls, tests, and owners into a versioned dependency graph. Start
-from a concrete change and compute what can be affected, why it is affected,
-which regression tests belong in scope, and who owns the impacted area.
+Enterprise Change Graph (ECG) answers a practical release question:
 
-The project is designed for SAP and other integration-heavy enterprise
-landscapes, but the model and engine are vendor-neutral.
+> I am changing this mapping, interface, field, system, or process. What can be affected, why, what must be tested, who must review it, and is the change safe to release?
 
-## Why
+ECG is Git-native, vendor-neutral, explainable, and automation-first. The deterministic core does not invent risk scores or require an LLM.
 
-A change such as “adjust customer country mapping” rarely ends at the mapping.
-It can propagate into master data fields, replication interfaces, S/4HANA
-behavior, tax controls, order-to-cash processes, tests, and operating teams.
+## What it does
 
-Impact analysis is often reconstructed manually from spreadsheets, tickets,
-architecture diagrams, and specialist memory. Those artifacts are useful, but
-they are difficult to traverse deterministically and hard to use in CI or agent
-workflows.
+- traces impact through processes, systems, data, mappings, interfaces, controls, tests, and owners;
+- preserves an explanation path for every affected object;
+- supports change-specific propagation semantics such as `schema-change`, `mapping-change`, and `decommission`;
+- compares graph versions and analyzes removals against the **before** graph;
+- finds regression-test and ownership coverage gaps and derives a minimal deterministic regression set;
+- gates CI with reusable YAML governance policies;
+- composes independently owned graph fragments while retaining provenance;
+- imports CSV, Excel, Interface-as-Code, and Mapping-as-Code artifacts;
+- detects collisions across changes in a release;
+- compares predicted impact with observed production evidence;
+- emits compact JSON context suitable for agents and MCP wrappers.
 
-Enterprise Change Graph makes the dependency model executable.
-
-## What works now
-
-- YAML or JSON graph documents
-- schema and deterministic structural validation
-- explicit impact propagation direction per relationship
-- multi-seed breadth-first impact traversal
-- cycle-safe deterministic shortest explanation paths
-- graph-version diff with impact seed candidates
-- deterministic CI governance gates
-- criticality summary without opaque scoring
-- automatic regression-test scope
-- automatic owner scope
-- depth-limited analysis
-- JSON output for automation and agents
-- Graphviz DOT output for visualization
-- CLI and GitHub Actions CI
-
-## 60-second example
+## Quick start
 
 ```bash
-python -m pip install -e .
+python -m pip install -e ".[dev]"
 ecg validate examples/customer-country-change.yaml
-ecg impact examples/customer-country-change.yaml --change CR-142
-```
-
-Example output:
-
-```text
-Impact: CR-142 — Change customer country mapping
-Seeds: mapping.customer-country
-Affected nodes: 12
-By type: control=1, data=1, interface=1, mapping=1, owner=2, process=2, system=2, test=2
-By criticality: critical=4, high=6, low=2
-Maximum criticality: critical
-Regression tests: test.customer-replication, test.otc-tax
-Owners: owner.integration, owner.master-data
-```
-
-Ask for explanation paths:
-
-```bash
 ecg impact examples/customer-country-change.yaml --change CR-142 --explain
+ecg report examples/customer-country-change.yaml --change CR-142
+ecg gate examples/customer-country-change.yaml --change CR-142 --policy policies/baseline.yaml
 ```
 
-Machine-readable output:
+## Realistic SAP demo
+
+`examples/sap-customer-master/` is a synthetic but realistic multi-team landscape with **59 nodes, 61 relationships, and 3 change scenarios** covering SAP MDG, Integration Suite/CPI, S/4HANA, CRM, tax, commerce, DWH/BW, mappings, processes, controls, tests, and owners.
 
 ```bash
-ecg impact examples/customer-country-change.yaml --change CR-142 --format json
+ecg compose \
+  examples/sap-customer-master/01-landscape.yaml \
+  examples/sap-customer-master/02-processes.yaml \
+  examples/sap-customer-master/03-assurance.yaml \
+  examples/sap-customer-master/04-changes-and-rules.yaml \
+  --output /tmp/sap-graph.yaml
+
+ecg report /tmp/sap-graph.yaml --change SAP-CR-001 --output /tmp/impact.md
+ecg release /tmp/sap-graph.yaml --change SAP-CR-001 --change SAP-CR-002
 ```
 
-Graphviz:
+The checked-in `golden-graph.yaml` is the deterministic composed result.
 
-```bash
-ecg dot examples/customer-country-change.yaml --change CR-142 > impact.dot
-dot -Tsvg impact.dot > impact.svg
-```
+## Core commands
 
-## Detect change between graph versions
+| Command | Purpose |
+|---|---|
+| `ecg validate` | Validate a graph document |
+| `ecg impact` | Explain downstream impact from a change or seed |
+| `ecg diff` | Compare graph versions and derive before/after seeds |
+| `ecg review` | Removal-aware before/after impact analysis |
+| `ecg report` | Produce Markdown/HTML/JSON decision artifacts |
+| `ecg gate` | Enforce governance policy in CI |
+| `ecg compose` | Combine graph fragments with provenance |
+| `ecg import-csv` | Onboard CSV catalogs |
+| `ecg import-xlsx` | Import Nodes/Edges/Changes workbook sheets |
+| `ecg import-interface` | Convert Interface-as-Code into ECG |
+| `ecg import-mapping` | Convert Mapping-as-Code into ECG |
+| `ecg quality` | Find orphans and missing tests/owners |
+| `ecg release` | Union regression scope and detect collisions |
+| `ecg observe` | Compare predicted impact with observed results |
+| `ecg similar` | Find similar historical change subgraphs |
+| `ecg context` | Emit compact agent/MCP-ready JSON |
+| `ecg dot` | Render Graphviz DOT |
 
-The graph itself can be versioned in Git. `ecg diff` compares two valid graph
-snapshots and reports added, removed, and modified nodes, edges, and declared
-changes.
+## Governance as code
 
-```bash
-ecg diff examples/diff-before.yaml examples/diff-after.yaml
-```
+Policies are versionable YAML. CLI values explicitly supplied by the caller override file values. Gate exit code `3` means policy failure; exit code `2` means invalid input or execution error.
 
-The output also derives conservative `impact_seeds_after` candidates from changed
-nodes and changed edge endpoints. Those seed IDs can feed the normal impact
-traversal in CI or a pull-request workflow. Removed nodes are reported separately
-because they no longer exist in the after graph and need removal-impact handling.
+## Why a graph, not another CMDB?
 
-Use JSON when another tool or agent will consume the result:
+ECG is intended to **consume existing project artifacts**, not require teams to maintain another central inventory. Fragments can live with teams that own mappings, interfaces, processes, tests, or systems and be composed during CI. Conflicting duplicate definitions fail loudly instead of being silently merged.
 
-```bash
-ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json
-```
+## Deterministic-first
 
-## Turn impact into a CI gate
+The core separates evidence from inference: no LLM is required; no opaque risk score decides a release; every affected node has a path explaining why it is in scope; filtering is explicit and recorded; incomplete traversal can be forbidden by policy.
 
-`ecg gate` converts the same deterministic impact set into a CI-friendly pass/fail
-result. For example, require a bounded blast radius plus explicit test and owner
-coverage:
+## CI and agents
 
-```bash
-ecg gate examples/customer-country-change.yaml \
-  --change CR-142 \
-  --max-affected 20 \
-  --min-tests 2 \
-  --min-owners 2
-```
+The root `action.yml` generates a removal-aware review in GitHub Job Summary. `ecg context ...` returns a stable JSON boundary for MCP/tool wrappers. Transport-neutral helpers are available for GitHub comments, ServiceNow work notes, and Jira Cloud ADF.
 
-You can also fail on a criticality threshold or forbid specific nodes/types. A
-policy failure exits with code `3`; invalid input exits with code `2`.
+## Status
 
-See [CI and governance gates](docs/ci.md).
-
-## Minimal model
-
-```yaml
-version: 1
-
-nodes:
-  - id: mapping.customer-country
-    type: mapping
-    criticality: high
-
-  - id: interface.mdg-to-s4-customer
-    type: interface
-    criticality: critical
-
-edges:
-  - source: mapping.customer-country
-    target: interface.mdg-to-s4-customer
-    relation: affects
-    propagation: forward
-
-changes:
-  - id: CR-142
-    title: Change customer country mapping
-    seeds:
-      - mapping.customer-country
-```
-
-`propagation` is the important part: architectural direction and impact direction
-are not always the same. Use `forward`, `reverse`, `both`, or `none`.
-
-See [the graph model](docs/model.md) and [use cases](docs/use-cases.md).
-
-## Design principles
-
-- deterministic first
-- explanation before scoring
-- versionable and Git-friendly
-- machine-readable by default
-- portable across enterprise tools
-- vendor-neutral core
-- no database required for the core workflow
-- useful to both humans and agents
-
-## Project direction
-
-The next layers are removal-aware diff impact, policy files and reusable policy
-packs, graph composition across repositories, richer evidence links, generated
-impact reports, and connectors to adjacent “as code” projects.
-
-See [ROADMAP.md](ROADMAP.md).
+**0.9.0 — usable alpha.** Core impact, diff/review, governance, composition, imports, quality, release, reporting, and evidence workflows are executable and tested.
 
 ## Related projects
 
 - [Mapping as Code](https://github.com/dkharlanau/mapping-as-code)
-- [Transformation Graph](https://github.com/dkharlanau/transformation-graph)
 - [Interface as Code](https://github.com/dkharlanau/interface-as-code)
-- [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code)
 - [Process as Code](https://github.com/dkharlanau/process-as-code)
-- [Decision Tables as Code](https://github.com/dkharlanau/decision-tables-as-code)
-- [Data Relationship Map](https://github.com/dkharlanau/data-relationship-map)
-- [Cutover Graph](https://github.com/dkharlanau/cutover-graph)
-- [Project Evidence Graph](https://github.com/dkharlanau/project-evidence-graph)
-
-## Status
-
-**Working core / early alpha (`0.3.0`).** The graph format may evolve before `1.0`.
+- [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code)
+- [Transformation Graph](https://github.com/dkharlanau/transformation-graph)

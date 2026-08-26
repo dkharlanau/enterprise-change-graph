@@ -1,0 +1,58 @@
+version: 1
+nodes:
+- {id: system.sap-mdg, type: system, name: SAP Master Data Governance, criticality: critical}
+- {id: system.sap-cpi, type: system, name: SAP Integration Suite / CPI, criticality: critical}
+- {id: system.sap-s4, type: system, name: SAP S/4HANA, criticality: critical}
+- {id: system.sap-crm, type: system, name: Legacy CRM, criticality: high}
+- {id: system.tax-engine, type: system, name: External Tax Engine, criticality: critical}
+- {id: system.dwh, type: system, name: Enterprise Data Warehouse, criticality: high}
+- {id: system.commerce, type: system, name: Commerce Platform, criticality: high}
+- {id: system.sap-bw, type: system, name: SAP BW, criticality: medium}
+- {id: data.customer.core, type: data, name: Customer core attributes, criticality: critical}
+- {id: data.customer.country, type: data, name: Customer country, criticality: high}
+- {id: data.customer.tax, type: data, name: Customer tax classification, criticality: critical}
+- {id: data.customer.sales-area, type: data, name: Customer sales area, criticality: critical}
+- {id: data.customer.partner-functions, type: data, name: Partner functions, criticality: high}
+- {id: data.customer.address, type: data, name: Customer address, criticality: high}
+- {id: data.customer.credit, type: data, name: Customer credit profile, criticality: critical}
+- {id: data.customer.email, type: data, name: Customer email, criticality: medium}
+- {id: data.customer.classification, type: data, name: Customer classification, criticality: high}
+- {id: data.customer.texts, type: data, name: Customer long texts, criticality: medium}
+- {id: interface.mdg-cpi, type: interface, name: MDG outbound to CPI, criticality: critical}
+- {id: interface.cpi-s4, type: interface, name: CPI to S/4 customer replication, criticality: critical}
+- {id: interface.s4-tax, type: interface, name: S/4 to Tax Engine, criticality: critical}
+- {id: interface.s4-dwh, type: interface, name: S/4 to DWH, criticality: high}
+- {id: interface.crm-mdg, type: interface, name: CRM migration feed to MDG, criticality: high}
+- {id: interface.s4-commerce, type: interface, name: S/4 customer feed to Commerce, criticality: high}
+- {id: mapping.customer-country, type: mapping, name: Country conversion, criticality: high}
+- {id: mapping.tax-classification, type: mapping, name: Tax classification mapping, criticality: critical}
+- {id: mapping.sales-area, type: mapping, name: Sales area mapping, criticality: critical}
+- {id: mapping.partner-functions, type: mapping, name: Partner function mapping, criticality: high}
+edges:
+- {source: system.sap-crm, target: interface.crm-mdg, relation: provides, propagation: both}
+- {source: interface.crm-mdg, target: system.sap-mdg, relation: delivers-to}
+- {source: mapping.customer-country, target: data.customer.country, relation: transforms}
+- {source: mapping.tax-classification, target: data.customer.tax, relation: transforms}
+- {source: mapping.sales-area, target: data.customer.sales-area, relation: transforms}
+- {source: mapping.partner-functions, target: data.customer.partner-functions, relation: transforms}
+- {source: system.sap-mdg, target: data.customer.core, relation: masters, propagation: both}
+- {source: data.customer.core, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.country, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.tax, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.sales-area, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.partner-functions, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.address, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.credit, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.email, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.classification, target: interface.mdg-cpi, relation: published-by}
+- {source: data.customer.texts, target: interface.mdg-cpi, relation: published-by}
+- {source: interface.mdg-cpi, target: system.sap-cpi, relation: delivers-to}
+- {source: system.sap-cpi, target: interface.cpi-s4, relation: provides, propagation: both}
+- {source: interface.cpi-s4, target: system.sap-s4, relation: delivers-to}
+- {source: system.sap-s4, target: interface.s4-tax, relation: provides, propagation: both}
+- {source: interface.s4-tax, target: system.tax-engine, relation: delivers-to}
+- {source: system.sap-s4, target: interface.s4-dwh, relation: provides, propagation: both}
+- {source: interface.s4-dwh, target: system.dwh, relation: delivers-to}
+- {source: system.dwh, target: system.sap-bw, relation: feeds}
+- {source: system.sap-s4, target: interface.s4-commerce, relation: provides, propagation: both}
+- {source: interface.s4-commerce, target: system.commerce, relation: delivers-to}

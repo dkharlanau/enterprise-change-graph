@@ -2,39 +2,31 @@ name: Enterprise Change Graph
 repository: enterprise-change-graph
 owner: dkharlanau
 visibility: public
-
-portfolio:
-  rank: 6
-  utility_today: 9
-  growth_potential: 10
-  sap_proof: 10
-  brand_value: 10
-
-status: early-alpha
-
+status: usable-alpha
+version: 0.9.0
 implementation:
   repository_created: true
-  implementation_status: working-core
-  version: 0.3.0
-  codex_fit: 5/5
+  implementation_status: executable
   sap_access_required: false
-  cli: true
-  tests: true
-  ci: true
-  schema: true
-  graph_diff: true
-  governance_gate: true
-
+capabilities:
+  - deterministic impact analysis
+  - before/after removal-aware review
+  - regression and owner coverage
+  - governance as code
+  - graph composition and provenance
+  - csv and excel onboarding
+  - interface and mapping adapters
+  - release collision detection
+  - historical evidence comparison
+  - agent-ready context
 principles:
   - versionable
   - portable
   - machine-readable
   - deterministic-first
-  - explanation-first
-  - visual
+  - explainable
   - git-friendly
   - interoperable
-
 primary_users:
   - SAP consultants
   - enterprise architects
@@ -42,10 +34,4 @@ primary_users:
   - integration consultants
   - business analysts
   - transformation teams
-
-outputs:
-  - text-impact-summary
-  - json-impact-result
-  - graph-diff
-  - ci-gate-result
-  - graphviz-dot
+  - release managers

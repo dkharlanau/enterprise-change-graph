@@ -1,0 +1,136 @@
+version: 1
+nodes:
+- {id: control.address, type: control, name: Postal address completeness, criticality: high, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: control.credit, type: control, name: Credit profile completeness, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: control.partner-function, type: control, name: Partner function completeness, criticality: high, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: control.sales-area, type: control, name: Sales area completeness, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: control.tax-number, type: control, name: Tax number consistency, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: data.customer.address, type: data, name: Customer address, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.classification, type: data, name: Customer classification, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.core, type: data, name: Customer core attributes, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.country, type: data, name: Customer country, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.credit, type: data, name: Customer credit profile, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.email, type: data, name: Customer email, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.partner-functions, type: data, name: Partner functions, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.sales-area, type: data, name: Customer sales area, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.tax, type: data, name: Customer tax classification, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: data.customer.texts, type: data, name: Customer long texts, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.cpi-s4, type: interface, name: CPI to S/4 customer replication, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.crm-mdg, type: interface, name: CRM migration feed to MDG, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.mdg-cpi, type: interface, name: MDG outbound to CPI, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.s4-commerce, type: interface, name: S/4 customer feed to Commerce, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.s4-dwh, type: interface, name: S/4 to DWH, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: interface.s4-tax, type: interface, name: S/4 to Tax Engine, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: mapping.customer-country, type: mapping, name: Country conversion, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: mapping.partner-functions, type: mapping, name: Partner function mapping, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: mapping.sales-area, type: mapping, name: Sales area mapping, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: mapping.tax-classification, type: mapping, name: Tax classification mapping, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: owner.analytics, type: owner, name: Analytics team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: owner.credit, type: owner, name: Credit team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: owner.integration, type: owner, name: Integration team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: owner.master-data, type: owner, name: Master Data team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: owner.otc, type: owner, name: Order-to-Cash team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: owner.tax, type: owner, name: Tax team, criticality: low, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: process.analytics-customer, type: process, name: Customer analytics, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.credit-check, type: process, name: Credit check, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.customer-change, type: process, name: Customer change, criticality: high, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.customer-migration, type: process, name: Customer migration, criticality: high, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.customer-onboarding, type: process, name: Customer onboarding, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.ecommerce-account, type: process, name: Commerce account enablement, criticality: high, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.order-to-cash, type: process, name: Order to cash, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: process.tax-determination, type: process, name: Tax determination, criticality: critical, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {id: system.commerce, type: system, name: Commerce Platform, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.dwh, type: system, name: Enterprise Data Warehouse, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.sap-bw, type: system, name: SAP BW, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.sap-cpi, type: system, name: SAP Integration Suite / CPI, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.sap-crm, type: system, name: Legacy CRM, criticality: high, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.sap-mdg, type: system, name: SAP Master Data Governance, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.sap-s4, type: system, name: SAP S/4HANA, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: system.tax-engine, type: system, name: External Tax Engine, criticality: critical, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {id: test.address-quality, type: test, name: Address quality regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.commerce-customer, type: test, name: Commerce customer sync regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.cpi-contract, type: test, name: CPI customer contract test, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.credit-check, type: test, name: Credit check regression, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.customer-migration, type: test, name: Migration customer regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.dwh-customer, type: test, name: DWH customer feed regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.mdg-country, type: test, name: MDG country mapping regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.mdg-tax, type: test, name: MDG tax classification regression, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.otc-order, type: test, name: Order-to-cash customer regression, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.partner-functions, type: test, name: Partner function regression, criticality: high, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.s4-replication, type: test, name: S/4 replication regression, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {id: test.tax-determination, type: test, name: Tax determination regression, criticality: critical, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+edges:
+- {source: control.address, target: test.address-quality, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: data.customer.address, target: control.address, relation: governed-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.address, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.classification, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.core, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.country, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.credit, target: control.credit, relation: governed-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.credit, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.credit, target: process.credit-check, relation: used-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.email, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.partner-functions, target: control.partner-function, relation: governed-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.partner-functions, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.sales-area, target: control.sales-area, relation: governed-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.sales-area, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.tax, target: control.tax-number, relation: governed-by, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: data.customer.tax, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: data.customer.texts, target: interface.mdg-cpi, relation: published-by, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.cpi-s4, target: owner.integration, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.cpi-s4, target: system.sap-s4, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.cpi-s4, target: test.s4-replication, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.crm-mdg, target: process.customer-migration, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: interface.crm-mdg, target: system.sap-mdg, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.mdg-cpi, target: owner.integration, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.mdg-cpi, target: system.sap-cpi, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.mdg-cpi, target: test.cpi-contract, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.s4-commerce, target: system.commerce, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.s4-commerce, target: test.commerce-customer, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.s4-dwh, target: system.dwh, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: interface.s4-dwh, target: test.dwh-customer, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: interface.s4-tax, target: system.tax-engine, relation: delivers-to, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: mapping.customer-country, target: data.customer.country, relation: transforms, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: mapping.customer-country, target: test.mdg-country, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: mapping.partner-functions, target: data.customer.partner-functions, relation: transforms, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: mapping.partner-functions, target: test.partner-functions, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: mapping.sales-area, target: data.customer.sales-area, relation: transforms, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: mapping.tax-classification, target: data.customer.tax, relation: transforms, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: mapping.tax-classification, target: test.mdg-tax, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.analytics-customer, target: owner.analytics, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.credit-check, target: owner.credit, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.credit-check, target: test.credit-check, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.customer-migration, target: test.customer-migration, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.order-to-cash, target: owner.otc, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.order-to-cash, target: process.credit-check, relation: depends-on, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: process.order-to-cash, target: process.tax-determination, relation: depends-on, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: process.order-to-cash, target: test.otc-order, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.tax-determination, target: owner.tax, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: process.tax-determination, target: test.tax-determination, relation: verified-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: system.commerce, target: process.ecommerce-account, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: system.dwh, target: system.sap-bw, relation: feeds, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-bw, target: process.analytics-customer, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: system.sap-cpi, target: interface.cpi-s4, relation: provides, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-crm, target: interface.crm-mdg, relation: provides, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-mdg, target: data.customer.core, relation: masters, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-mdg, target: owner.master-data, relation: owned-by, provenance: [examples/sap-customer-master/03-assurance.yaml]}
+- {source: system.sap-mdg, target: process.customer-change, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: system.sap-mdg, target: process.customer-onboarding, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: system.sap-s4, target: interface.s4-commerce, relation: provides, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-s4, target: interface.s4-dwh, relation: provides, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-s4, target: interface.s4-tax, relation: provides, propagation: both, provenance: [examples/sap-customer-master/01-landscape.yaml]}
+- {source: system.sap-s4, target: process.order-to-cash, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+- {source: system.tax-engine, target: process.tax-determination, relation: supports, provenance: [examples/sap-customer-master/02-processes.yaml]}
+changes:
+- {id: SAP-CR-001, title: Change customer country conversion, seeds: [mapping.customer-country], kind: mapping-change, provenance: [examples/sap-customer-master/04-changes-and-rules.yaml]}
+- {id: SAP-CR-002, title: Change tax classification replication, seeds: [data.customer.tax], kind: schema-change, provenance: [examples/sap-customer-master/04-changes-and-rules.yaml]}
+- {id: SAP-CR-003, title: Decommission legacy CRM migration feed, seeds: [interface.crm-mdg], kind: decommission, provenance: [examples/sap-customer-master/04-changes-and-rules.yaml]}
+relation_rules:
+  depends-on: {default: forward, change_kinds: {decommission: both}}
+  owned-by: {default: forward}
+  provides: {default: both}
+  published-by: {default: forward, change_kinds: {decommission: both, schema-change: forward}}
+  transforms: {default: forward, change_kinds: {decommission: both, mapping-change: forward}}
+  verified-by: {default: forward}
+metadata:
+  composed_from: [examples/sap-customer-master/01-landscape.yaml, examples/sap-customer-master/02-processes.yaml, examples/sap-customer-master/03-assurance.yaml, examples/sap-customer-master/04-changes-and-rules.yaml]

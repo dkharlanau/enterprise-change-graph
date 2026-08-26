@@ -1,41 +1,33 @@
 # Roadmap
 
-## Now — executable core
+## Delivered in 0.9
 
-- [x] canonical YAML/JSON graph model
-- [x] explicit impact propagation semantics
-- [x] deterministic graph validation
-- [x] change and ad-hoc seed traversal
-- [x] explanation paths
-- [x] regression-test and owner scope
-- [x] machine-readable JSON output
-- [x] Graphviz DOT export
-- [x] CLI, tests, and CI
-- [x] compare graph versions and identify structural change
-- [x] derive impact seed candidates from graph diffs
-- [x] basic deterministic CI governance gates
+- canonical versioned graph model and JSON Schema
+- deterministic, explainable impact traversal
+- change-kind relation semantics and bounded traversal filters
+- graph diff plus removal-aware before/after review
+- multi-file composition, namespaces, conflicts, and provenance
+- CSV / Excel onboarding
+- Interface-as-Code and Mapping-as-Code adapters
+- regression-test and owner coverage diagnostics
+- deterministic minimal regression scope
+- reusable governance policy files and CI exit codes
+- Markdown / HTML / JSON impact reports
+- graph quality diagnostics
+- release collision and approval-route analysis
+- predicted-vs-observed evidence comparison
+- similar historical change search
+- agent/MCP-ready structured context
+- synthetic 59-node SAP customer-master reference landscape
 
-## Next — change intelligence
+## Next: prove it on real work
 
-- [ ] removal-aware impact analysis for deleted nodes and relationships
-- [ ] reusable YAML policy files and policy packs
-- [ ] include evidence links and approval requirements
-- [ ] configurable traversal filters by relation and node type
-- [ ] reusable graph fragments and cross-file composition
-
-## Then — enterprise interoperability
-
-- [ ] imports from Mapping as Code and Interface as Code
-- [ ] process and decision-table adapters
-- [ ] test-management and ticket references
-- [ ] SARIF or check-run friendly CI output
-- [ ] generated Markdown/HTML impact reports
-
-## Later — portfolio-scale graph
-
-- [ ] repository federation
-- [ ] graph snapshots and provenance
-- [ ] query API
-- [ ] interactive visualization
-- [ ] policy packs for SAP transformation and operations
-- [ ] agent-facing context packages with bounded evidence
+1. Add more source adapters: Process as Code, reconciliation artifacts, OpenAPI/AsyncAPI, SAP interface inventories.
+2. Add conformance fixtures for adapters so schema drift is caught automatically.
+3. Improve coverage semantics for alternative paths and explicit test-to-requirement coverage.
+4. Add reusable GitHub PR comment workflow and examples for GitLab/Azure DevOps.
+5. Add ServiceNow/Jira wrapper examples without putting credentials or transport into core.
+6. Add graph-version migration tooling when schema v2 becomes necessary.
+7. Add large-graph performance benchmarks and deterministic snapshot suites.
+8. Add optional interactive static HTML exploration, keeping CLI/JSON as source of truth.
+9. Add optional semantic enrichment protocol with strict provenance between deterministic evidence and inferred suggestions.
