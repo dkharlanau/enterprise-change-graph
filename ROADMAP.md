@@ -1,14 +1,15 @@
 # Roadmap
 
-## Delivered in 0.9
+## Delivered through 0.10
 
 - canonical versioned graph model and JSON Schema
 - deterministic, explainable impact traversal
+- deterministic explanation of non-impact barriers
 - change-kind relation semantics and bounded traversal filters
 - graph diff plus removal-aware before/after review
 - multi-file composition, namespaces, conflicts, and provenance
 - CSV / Excel onboarding
-- Interface-as-Code and Mapping-as-Code adapters
+- Interface-as-Code, Mapping-as-Code, Process-as-Code, and Reconciliation-as-Code adapters
 - regression-test and owner coverage diagnostics
 - deterministic minimal regression scope
 - reusable governance policy files and CI exit codes
@@ -18,16 +19,18 @@
 - predicted-vs-observed evidence comparison
 - similar historical change search
 - agent/MCP-ready structured context
+- GraphML and Cypher export
+- dependency-free static HTML explorer
+- GitHub Action with Job Summary and optional persistent PR comment
 - synthetic 59-node SAP customer-master reference landscape
 
-## Next: prove it on real work
+## Next: prove and harden it
 
-1. Add more source adapters: Process as Code, reconciliation artifacts, OpenAPI/AsyncAPI, SAP interface inventories.
-2. Add conformance fixtures for adapters so schema drift is caught automatically.
-3. Improve coverage semantics for alternative paths and explicit test-to-requirement coverage.
-4. Add reusable GitHub PR comment workflow and examples for GitLab/Azure DevOps.
-5. Add ServiceNow/Jira wrapper examples without putting credentials or transport into core.
-6. Add graph-version migration tooling when schema v2 becomes necessary.
-7. Add large-graph performance benchmarks and deterministic snapshot suites.
-8. Add optional interactive static HTML exploration, keeping CLI/JSON as source of truth.
-9. Add optional semantic enrichment protocol with strict provenance between deterministic evidence and inferred suggestions.
+1. Add adapter conformance suites tied to upstream fixture versions.
+2. Add OpenAPI / AsyncAPI import for interfaces that are already machine-described.
+3. Add test-management adapters (generic JUnit first; SAP Cloud ALM/Tricentis when real export formats are available).
+4. Add benchmark graphs (1k/10k/100k nodes) with performance budgets.
+5. Add exact alternative-path analysis for `why-not`, beyond the deterministic shortest physical path.
+6. Add versioned graph migrations when schema v2 becomes necessary.
+7. Add reusable GitLab/Azure DevOps review examples.
+8. Add an optional semantic enrichment protocol with strict provenance between deterministic evidence and inferred suggestions.

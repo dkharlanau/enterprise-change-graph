@@ -30,12 +30,28 @@ jobs:
         run: |
           ecg impact examples/customer-country-change.yaml --change CR-142 --format json > /tmp/impact.json
           ecg report examples/customer-country-change.yaml --change CR-142 --output /tmp/impact.md
+      - name: Why-not explanation
+        run: ecg why-not examples/customer-country-change.yaml --seed process.order-to-cash --target mapping.customer-country --format json > /tmp/why-not.json
       - name: Diff and removal-aware review
         run: |
           ecg diff examples/diff-before.yaml examples/diff-after.yaml --format json > /tmp/diff.json
           ecg review examples/diff-before.yaml examples/diff-after.yaml --format markdown --output /tmp/review.md
       - name: Governance policy
         run: ecg gate examples/customer-country-change.yaml --change CR-142 --policy policies/baseline.yaml
+      - name: Artifact adapters
+        run: |
+          ecg import-process examples/adapters/process-minimal.yaml --output /tmp/process.yaml
+          ecg validate /tmp/process.yaml
+          ecg import-reconciliation examples/adapters/reconciliation.yaml --output /tmp/reconciliation.yaml
+          ecg validate /tmp/reconciliation.yaml
+      - name: Interoperability exports
+        run: |
+          ecg export examples/customer-country-change.yaml --format graphml --output /tmp/graph.graphml
+          ecg export examples/customer-country-change.yaml --format cypher --output /tmp/graph.cypher
+          ecg explore examples/customer-country-change.yaml --change CR-142 --output /tmp/explorer.html
+          test -s /tmp/graph.graphml
+          test -s /tmp/graph.cypher
+          test -s /tmp/explorer.html
       - name: Golden SAP graph
         run: |
           ecg validate examples/sap-customer-master/golden-graph.yaml

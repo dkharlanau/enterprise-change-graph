@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0 — 2026-08-26
+
+- Add deterministic `why-not` explanations for excluded targets.
+- Add first-party Process-as-Code v0.2 and Reconciliation-as-Code adapters based on their current repository formats.
+- Add GraphML and Cypher export.
+- Add a dependency-free static HTML graph explorer with optional change highlighting.
+- Extend CI with interoperability smoke tests.
+
 ## 0.9.0 — 2026-08-26
 
 - Add multi-file composition, namespaces, conflict detection, and source provenance.
