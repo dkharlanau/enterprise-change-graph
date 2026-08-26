@@ -10,19 +10,24 @@ portfolio:
   sap_proof: 10
   brand_value: 10
 
-status: planning
+status: early-alpha
 
 implementation:
   repository_created: true
-  implementation_status: not-started
+  implementation_status: working-core
   codex_fit: 5/5
   sap_access_required: false
+  cli: true
+  tests: true
+  ci: true
+  schema: true
 
 principles:
   - versionable
   - portable
   - machine-readable
   - deterministic-first
+  - explanation-first
   - visual
   - git-friendly
   - interoperable
@@ -34,3 +39,8 @@ primary_users:
   - integration consultants
   - business analysts
   - transformation teams
+
+outputs:
+  - text-impact-summary
+  - json-impact-result
+  - graphviz-dot

@@ -1,61 +1,133 @@
 # Enterprise Change Graph
 
-Trace enterprise changes across processes, systems, data, mappings, interfaces, owners, and regression tests.
+**Deterministic impact analysis for enterprise changes.**
 
-## Problem
+Enterprise Change Graph turns processes, systems, data objects, interfaces,
+mappings, controls, tests, and owners into a versioned dependency graph. Start
+from a concrete change and compute what can be affected, why it is affected,
+which regression tests belong in scope, and who owns the impacted area.
 
-A seemingly small SAP or enterprise change can affect business processes, integrations, mappings, downstream systems, tests, and operations, but impact analysis is often manual.
+The project is designed for SAP and other integration-heavy enterprise
+landscapes, but the model and engine are vendor-neutral.
 
-## Core idea
+## Why
 
-Traverse a project dependency graph from a structured change definition to compute affected processes, systems, data, mappings, interfaces, owners, and tests.
+A change such as “adjust customer country mapping” rarely ends at the mapping.
+It can propagate into master data fields, replication interfaces, S/4HANA
+behavior, tax controls, order-to-cash processes, tests, and operating teams.
 
-## Example
+Impact analysis is often reconstructed manually from spreadsheets, tickets,
+architecture diagrams, and specialist memory. Those artifacts are useful, but
+they are difficult to traverse deterministically and hard to use in CI or agent
+workflows.
 
-```yaml
-change:
-  id: CR-142
-  description: Change customer country mapping
+Enterprise Change Graph makes the dependency model executable.
+
+## What works now
+
+- YAML or JSON graph documents
+- schema and deterministic structural validation
+- explicit impact propagation direction per relationship
+- multi-seed breadth-first impact traversal
+- cycle-safe deterministic shortest explanation paths
+- criticality summary without opaque scoring
+- automatic regression-test scope
+- automatic owner scope
+- depth-limited analysis
+- JSON output for automation and agents
+- Graphviz DOT output for visualization
+- CLI and GitHub Actions CI
+
+## 60-second example
+
+```bash
+python -m pip install -e .
+ecg validate examples/customer-country-change.yaml
+ecg impact examples/customer-country-change.yaml --change CR-142
 ```
+
+Example output:
 
 ```text
-Possible output:
-
-Affected processes: 3
-Affected interfaces: 2
-Affected mappings: 17
-Affected tests: 6
-Affected systems: 4
-Affected owners: 3
+Impact: CR-142 — Change customer country mapping
+Seeds: mapping.customer-country
+Affected nodes: 12
+By type: control=1, data=1, interface=1, mapping=1, owner=2, process=2, system=2, test=2
+By criticality: critical=4, high=6, low=2
+Maximum criticality: critical
+Regression tests: test.customer-replication, test.otc-tax
+Owners: owner.integration, owner.master-data
 ```
 
-## Initial scope
+Ask for explanation paths:
 
-- change definition
-- graph-based dependency traversal
-- process impact
-- system impact
-- data impact
-- interface impact
-- mapping impact
-- test impact
-- owner impact
-- generated regression scope
+```bash
+ecg impact examples/customer-country-change.yaml --change CR-142 --explain
+```
 
-## Long-term direction
+Machine-readable output:
 
-Model-backed enterprise impact analysis for transformation and operations.
+```bash
+ecg impact examples/customer-country-change.yaml --change CR-142 --format json
+```
+
+Graphviz:
+
+```bash
+ecg dot examples/customer-country-change.yaml --change CR-142 > impact.dot
+dot -Tsvg impact.dot > impact.svg
+```
+
+## Minimal model
+
+```yaml
+version: 1
+
+nodes:
+  - id: mapping.customer-country
+    type: mapping
+    criticality: high
+
+  - id: interface.mdg-to-s4-customer
+    type: interface
+    criticality: critical
+
+edges:
+  - source: mapping.customer-country
+    target: interface.mdg-to-s4-customer
+    relation: affects
+    propagation: forward
+
+changes:
+  - id: CR-142
+    title: Change customer country mapping
+    seeds:
+      - mapping.customer-country
+```
+
+`propagation` is the important part: architectural direction and impact direction
+are not always the same. Use `forward`, `reverse`, `both`, or `none`.
+
+See [the graph model](docs/model.md) and [use cases](docs/use-cases.md).
 
 ## Design principles
 
-- versionable
-- portable
-- machine-readable
-- deterministic-first
-- visual where useful
-- Git-friendly
-- vendor-neutral where practical
-- interoperable with enterprise tools
+- deterministic first
+- explanation before scoring
+- versionable and Git-friendly
+- machine-readable by default
+- portable across enterprise tools
+- vendor-neutral core
+- no database required for the core workflow
+- useful to both humans and agents
+
+## Project direction
+
+The next layers are graph composition across repositories, change-policy gates,
+diff-aware analysis, richer evidence links, generated impact reports, and
+connectors to adjacent “as code” projects.
+
+See [ROADMAP.md](ROADMAP.md).
 
 ## Related projects
 
@@ -71,4 +143,4 @@ Model-backed enterprise impact analysis for transformation and operations.
 
 ## Status
 
-Planning.
+**Working core / early alpha.** The graph format may evolve before `1.0`.

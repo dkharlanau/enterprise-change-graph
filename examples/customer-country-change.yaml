@@ -1,0 +1,119 @@
+version: 1
+
+nodes:
+  - id: mapping.customer-country
+    type: mapping
+    name: Customer country conversion
+    criticality: high
+
+  - id: data.customer.country
+    type: data
+    name: Customer country field
+    criticality: high
+
+  - id: interface.mdg-to-s4-customer
+    type: interface
+    name: MDG to S/4 customer replication
+    criticality: critical
+
+  - id: system.sap-mdg
+    type: system
+    name: SAP Master Data Governance
+    criticality: high
+
+  - id: system.sap-s4
+    type: system
+    name: SAP S/4HANA
+    criticality: critical
+
+  - id: process.customer-onboarding
+    type: process
+    name: Customer onboarding
+    criticality: high
+
+  - id: process.order-to-cash
+    type: process
+    name: Order to cash
+    criticality: critical
+
+  - id: control.tax-determination
+    type: control
+    name: Customer tax determination
+    criticality: critical
+
+  - id: test.customer-replication
+    type: test
+    name: Customer replication regression
+    criticality: high
+
+  - id: test.otc-tax
+    type: test
+    name: Order-to-cash tax regression
+    criticality: high
+
+  - id: owner.master-data
+    type: owner
+    name: Master Data team
+    criticality: low
+
+  - id: owner.integration
+    type: owner
+    name: Integration team
+    criticality: low
+
+edges:
+  - source: mapping.customer-country
+    target: data.customer.country
+    relation: transforms
+
+  - source: mapping.customer-country
+    target: system.sap-mdg
+    relation: configured-in
+
+  - source: data.customer.country
+    target: interface.mdg-to-s4-customer
+    relation: replicated-by
+
+  - source: data.customer.country
+    target: process.customer-onboarding
+    relation: used-by
+
+  - source: interface.mdg-to-s4-customer
+    target: system.sap-s4
+    relation: delivers-to
+
+  - source: interface.mdg-to-s4-customer
+    target: test.customer-replication
+    relation: verified-by
+
+  - source: interface.mdg-to-s4-customer
+    target: owner.integration
+    relation: owned-by
+
+  - source: system.sap-s4
+    target: process.order-to-cash
+    relation: supports
+
+  - source: process.customer-onboarding
+    target: owner.master-data
+    relation: owned-by
+
+  - source: process.order-to-cash
+    target: control.tax-determination
+    relation: governed-by
+
+  - source: control.tax-determination
+    target: test.otc-tax
+    relation: verified-by
+
+changes:
+  - id: CR-142
+    title: Change customer country mapping
+    description: >
+      Adjust the source-to-target country conversion used during customer
+      replication from MDG to S/4HANA.
+    seeds:
+      - mapping.customer-country
+    metadata:
+      ticket: CR-142
+      domain: customer-master-data

@@ -1,21 +1,39 @@
 # Roadmap
 
-## Phase 1 — Core model
+## Now — executable core
 
-Define the canonical structured representation and its schema.
+- [x] canonical YAML/JSON graph model
+- [x] explicit impact propagation semantics
+- [x] deterministic graph validation
+- [x] change and ad-hoc seed traversal
+- [x] explanation paths
+- [x] regression-test and owner scope
+- [x] machine-readable JSON output
+- [x] Graphviz DOT export
+- [x] CLI, tests, and CI
 
-## Phase 2 — Validation
+## Next — change intelligence
 
-Add deterministic validation rules and test fixtures.
+- [ ] compare two graph versions and identify structural change
+- [ ] derive seed nodes from a graph diff
+- [ ] policy gates for critical impacted artifacts
+- [ ] include evidence links and approval requirements
+- [ ] configurable traversal filters by relation and node type
+- [ ] reusable graph fragments and cross-file composition
 
-## Phase 3 — Visualization
+## Then — enterprise interoperability
 
-Add human-readable visual views and generated documentation.
+- [ ] imports from Mapping as Code and Interface as Code
+- [ ] process and decision-table adapters
+- [ ] test-management and ticket references
+- [ ] SARIF or check-run friendly CI output
+- [ ] generated Markdown/HTML impact reports
 
-## Phase 4 — Interoperability
+## Later — portfolio-scale graph
 
-Add import/export to relevant open standards and common project formats.
-
-## Phase 5 — Automation
-
-Add CLI, CI integration, and machine-facing outputs where useful.
+- [ ] repository federation
+- [ ] graph snapshots and provenance
+- [ ] query API
+- [ ] interactive visualization
+- [ ] policy packs for SAP transformation and operations
+- [ ] agent-facing context packages with bounded evidence

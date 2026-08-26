@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enterprise-change-graph"
+version = "0.1.0"
+description = "Deterministic enterprise change impact analysis across processes, systems, data, interfaces, mappings, tests, controls, and owners."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Dzmitryi Kharlanau"}]
+keywords = [
+  "enterprise-architecture",
+  "impact-analysis",
+  "change-management",
+  "sap",
+  "dependency-graph",
+  "regression-testing",
+  "architecture-as-code",
+]
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "jsonschema>=4.20"]
+
+[project.scripts]
+ecg = "enterprise_change_graph.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
