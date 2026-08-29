@@ -8,6 +8,24 @@ Enterprise Change Graph (ECG) answers a practical release question:
 
 ECG is Git-native, vendor-neutral, explainable, and automation-first. The deterministic core does not invent risk scores or require an LLM.
 
+## Choose this graph when
+
+Use **Enterprise Change Graph** when the durable object you are analyzing is a **specific change, release, decommission, schema change, or mapping change**. ECG is optimized for propagation rules, inclusion/exclusion explanations, regression scope, ownership review, release collisions, and predicted-vs-observed impact.
+
+Use [Transformation Graph](https://github.com/dkharlanau/transformation-graph) instead when you need a **materialized transformation project model** that continuously normalizes and connects process, interface, mapping, data, tests, ownership and evidence across a project/revision.
+
+| Question | Enterprise Change Graph | Transformation Graph |
+| --- | --- | --- |
+| What does change `CR-142` affect and why? | **Primary** | General traversal |
+| Why is a target excluded from impact? | **Primary (`why-not`)** | Not the main abstraction |
+| What tests/owners are required for this release? | **Primary** | Coverage/governance view |
+| Are two planned changes colliding? | **Primary** | Not the main abstraction |
+| What is the connected transformation model for this project? | Supporting input | **Primary** |
+| Where are durable project-wide traceability gaps? | Change-specific view | **Primary** |
+| Should Mapping/Interface/Process semantics be authored here? | **No** | **No** |
+
+Both products consume independently owned domain semantics and retain provenance. Neither should become a second source of truth for process, mapping, or interface contracts.
+
 ## What it does
 
 - traces impact through processes, systems, data, mappings, interfaces, API contracts, controls, tests, and owners;
@@ -140,3 +158,5 @@ The root `action.yml` generates a removal-aware review in GitHub Job Summary and
 - [Process as Code](https://github.com/dkharlanau/process-as-code)
 - [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code)
 - [Transformation Graph](https://github.com/dkharlanau/transformation-graph)
+
+Portfolio map: https://dkharlanau.github.io/products/
