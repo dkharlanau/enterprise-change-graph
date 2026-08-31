@@ -8,6 +8,12 @@ Enterprise Change Graph (ECG) answers a practical release question:
 
 ECG is Git-native, vendor-neutral, explainable, and automation-first. The deterministic core does not invent risk scores or require an LLM.
 
+## Public reference
+
+The [project page](https://dkharlanau.github.io/enterprise-change-graph/) explains the change-focused workflow. A generated [SAP customer-master impact report](https://dkharlanau.github.io/enterprise-change-graph/demo/impact-report.html) and [interactive graph explorer](https://dkharlanau.github.io/enterprise-change-graph/demo/explorer.html) make the 59-node synthetic reference landscape inspectable without installing the package. The report also has a [machine-readable JSON form](https://dkharlanau.github.io/enterprise-change-graph/demo/impact-report.json).
+
+These artifacts contain demonstration data, not a production landscape. The Pages workflow rebuilds them with the installed `ecg` command, keeping the public proof aligned with the tested CLI rather than a separately maintained mock-up.
+
 ## Choose this graph when
 
 Use **Enterprise Change Graph** when the durable object you are analyzing is a **specific change, release, decommission, schema change, or mapping change**. ECG is optimized for propagation rules, inclusion/exclusion explanations, regression scope, ownership review, release collisions, and predicted-vs-observed impact.
@@ -149,7 +155,7 @@ The root `action.yml` generates a removal-aware review in GitHub Job Summary and
 
 ## Status
 
-**0.11.0 — usable alpha.** Core impact, exclusion explanation, diff/review, governance, composition, artifact/API imports, test evidence, quality, release, reporting, evidence, export, exploration, and performance workflows are executable and tested.
+**0.11.0 — usable alpha.** Core impact, exclusion explanation, diff/review, governance, composition, artifact/API imports, test evidence, quality, release, reporting, evidence, export, exploration, and performance workflows are executable and tested. The public reference report and explorer are generated from the same synthetic graph and installed CLI.
 
 ## Related projects
 

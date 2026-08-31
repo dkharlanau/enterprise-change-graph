@@ -23,11 +23,29 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install project
+        run: python -m pip install .
       - name: Stage product site
         run: |
           mkdir -p _site
           cp docs/product.html _site/index.html
           cp docs/agent-manifest.json _site/agent-manifest.json
+          mkdir -p _site/demo
+          ecg report examples/sap-customer-master/golden-graph.yaml \
+            --change SAP-CR-001 \
+            --format html \
+            --output _site/demo/impact-report.html
+          ecg report examples/sap-customer-master/golden-graph.yaml \
+            --change SAP-CR-001 \
+            --format json \
+            --output _site/demo/impact-report.json
+          ecg explore examples/sap-customer-master/golden-graph.yaml \
+            --change SAP-CR-001 \
+            --output _site/demo/explorer.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

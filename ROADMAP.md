@@ -27,6 +27,7 @@
 - GitHub Action with Job Summary and optional persistent PR comment
 - synthetic performance benchmark and caller-defined budgets
 - synthetic 59-node SAP customer-master reference landscape
+- generated public impact report, machine-readable result, and interactive explorer for the SAP reference landscape
 
 ## Next: harden what is now useful
 
