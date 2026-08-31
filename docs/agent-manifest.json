@@ -4,7 +4,7 @@
   "purpose": "Provide deterministic, explainable enterprise change-impact analysis and release governance across connected artifacts.",
   "human_url": "https://dkharlanau.github.io/enterprise-change-graph/",
   "repository": "https://github.com/dkharlanau/enterprise-change-graph",
-  "boundaries": ["not a manually curated CMDB requirement", "no opaque or invented risk scores", "do not invent missing graph links", "impact must be explainable by paths and propagation rules"],
+  "boundaries": ["not a manually curated CMDB requirement", "no opaque or invented risk scores", "do not invent missing graph links", "impact must be explainable by paths and propagation rules", "no direct Transformation Graph or Project Evidence Graph adapter exists"],
   "capabilities": ["validate enterprise graphs", "impact and why-not analysis", "before/after review", "regression and ownership gap detection", "policy gates", "graph composition and artifact imports", "JUnit evidence ingestion", "release collision analysis", "predicted-vs-observed comparison", "GraphML/Cypher/static explorer export", "compact agent context"],
   "entrypoints": [
     {"type":"cli","command":"ecg validate <graph.yaml>"},

@@ -109,6 +109,21 @@ ecg explore graph.yaml --change CR-142 --output explorer.html
 
 The static explorer has no CDN, backend, database, or runtime dependency.
 
+## Handoff boundaries
+
+Enterprise Change Graph accepts semantic inputs only through its implemented adapters and canonical graph format. The supported inbound handoffs are CSV/Excel catalogs, Mapping/Interface/Process/Reconciliation-as-Code artifacts, OpenAPI, AsyncAPI and JUnit evidence. For example:
+
+```bash
+ecg import-process examples/adapters/process-minimal.yaml --output build/process.graph.yaml
+ecg import-openapi examples/adapters/openapi.yaml --output build/openapi.graph.yaml
+ecg compose build/process.graph.yaml build/openapi.graph.yaml --output build/change-landscape.yaml
+ecg validate build/change-landscape.yaml
+```
+
+The supported outbound handoffs are decision artifacts (`report`, `review`, `gate`, `context`), a standalone explorer, and GraphML/Cypher interchange files. GraphML and Cypher preserve graph structure for external graph tools; they are not evidence packs or automatic inputs to another repository in this suite.
+
+There is currently **no direct Transformation Graph or Project Evidence Graph adapter**. Transformation Graph remains the better product when the required output is a durable materialized project graph. Project Evidence Graph remains the better product when the required output is retained assurance across requirements and evidence. Do not imply a cross-product handoff merely because all three products use graph terminology.
+
 ## Performance
 
 Impact analysis builds one adjacency index per run and stores explanation traces as parent links instead of copying complete paths during traversal.
@@ -159,10 +174,16 @@ The root `action.yml` generates a removal-aware review in GitHub Job Summary and
 
 ## Related projects
 
-- [Mapping as Code](https://github.com/dkharlanau/mapping-as-code)
-- [Interface as Code](https://github.com/dkharlanau/interface-as-code)
-- [Process as Code](https://github.com/dkharlanau/process-as-code)
-- [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code)
-- [Transformation Graph](https://github.com/dkharlanau/transformation-graph)
+- [Mapping as Code](https://github.com/dkharlanau/mapping-as-code), [Interface as Code](https://github.com/dkharlanau/interface-as-code), and [Process as Code](https://github.com/dkharlanau/process-as-code) are supported semantic inputs through explicit adapters; they remain the authoring homes for those contracts.
+- [Reconciliation as Code](https://github.com/dkharlanau/reconciliation-as-code) can provide explicit reconciliation artifacts and test evidence; ECG retains provenance rather than re-authoring the control.
+- [Transformation Graph](https://github.com/dkharlanau/transformation-graph) owns the durable materialized project graph use case. ECG owns change-focused propagation, exclusion explanation, regression scope and release review. No direct adapter currently connects their file formats.
+- [Project Evidence Graph](https://github.com/dkharlanau/project-evidence-graph) owns retained project assurance. ECG does not currently emit a Project Evidence fragment or consume its packs.
 
 Portfolio map: https://dkharlanau.github.io/products/
+
+## About the author
+
+Created and maintained by **Dzmitryi Kharlanau**, an SAP consultant and system analyst working across enterprise architecture, data, integration, operations, and practical AI.
+
+- [Website and knowledge base](https://dkharlanau.github.io/)
+- [LinkedIn](https://www.linkedin.com/in/dkharlanau/)
