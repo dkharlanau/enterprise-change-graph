@@ -48,6 +48,8 @@ jobs:
             --output _site/demo/explorer.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
+      - name: Add consent-aware portfolio analytics
+        run: node scripts/inject-portfolio-analytics.mjs _site
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
